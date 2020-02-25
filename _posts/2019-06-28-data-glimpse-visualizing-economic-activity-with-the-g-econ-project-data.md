@@ -5,7 +5,7 @@ date: "2019-06-28"
 
 This is the first 'data glimpse' - a short exploration of an existing dataset, with code and examples showing some of the ways the data can be used. For today's glimpse, I'll be playing with the 'G-Econ' dataset \[1\], as recommended by <jonasmendes> on Pioneer. This dataset looks at economic activity for different locations, as opposed to breaking it down by country. There is data available from 1990, 2000 and 2005, broken down by 'grid cell' (a square one degree wide and one degree high).
 
-![](images/wordpress_export/2019/06/gecon_blues-1.png)
+![](../images/wordpress_export/2019/06/gecon_blues-1.png)
 
 Economic Activity by Grid Cell - G-Econ data for 1990
 
@@ -13,7 +13,7 @@ Economic Activity by Grid Cell - G-Econ data for 1990
 
 The data is shared as a Microsoft Excel worksheet \[2\]. There are 27,446 rows, and it's a little overwhelming visually. Spreadsheets aren't my forte, so my first step was to load the data into a Pandas DataFrame in a Jupyter notebook ([available here](https://github.com/johnowhitaker/datasciencecastnet/tree/master/gecon) for anyone who wants to follow along). With the data ready, I set out on the most obvious task: showing the data as a map. A few minutes of StackOverflow later, we have a visual and a GeoTiff file that can be opened in mapping software such as QGIS:
 
-![](images/wordpress_export/2019/06/screenshot-from-2019-06-28-16-21-56.png)
+![](../images/wordpress_export/2019/06/screenshot-from-2019-06-28-16-21-56.png)
 
 ## Asking questions
 
@@ -23,19 +23,19 @@ Because the data is aggregated by location (as opposed to population), it can an
 
 First up, the effect of temperature:
 
-![](images/wordpress_export/2019/06/screenshot-from-2019-06-28-16-39-52.png)
+![](../images/wordpress_export/2019/06/screenshot-from-2019-06-28-16-39-52.png)
 
 Not much gets done where it's cold, it seems
 
 What about rainfall?
 
-![](images/wordpress_export/2019/06/screenshot-from-2019-06-28-16-42-06.png)
+![](../images/wordpress_export/2019/06/screenshot-from-2019-06-28-16-42-06.png)
 
 Economic Activity (2000) vs max precipitation (mm rainfall)
 
 And finally, distance to the ocean:
 
-![](images/wordpress_export/2019/06/screenshot-from-2019-06-28-16-45-40.png)
+![](../images/wordpress_export/2019/06/screenshot-from-2019-06-28-16-45-40.png)
 
 Coasts are the place to be?
 
@@ -45,7 +45,7 @@ It appears that the most productive places are those where people like to be: ac
 
 There are many ways we could compare countries. A bar plot of average economic activity per grid cell, perhaps, or comparison between the most productive single grid cell in each country. I was interested to see which countries had the most spread. The GIF below shows this dramatically: the top few cells in Russia are responsible for a huge chunk of the economic activity, while India has much more of a spread:
 
-![](images/wordpress_export/2019/06/spread.gif)
+![](../images/wordpress_export/2019/06/spread.gif)
 
 Scaled fraction of the total economic activity in four countries.
 

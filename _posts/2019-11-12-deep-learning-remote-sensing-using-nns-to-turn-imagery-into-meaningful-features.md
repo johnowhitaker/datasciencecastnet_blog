@@ -7,7 +7,7 @@ Every now and again, the World Bank conducts something called a Living Standards
 
 ## Predicting Poverty: Where do you start?
 
-![](images/wordpress_export/2019/11/screenshot-from-2019-11-18-20-29-49.png?w=1024)
+![](../images/wordpress_export/2019/11/screenshot-from-2019-11-18-20-29-49.png?w=1024)
 
 Nighttime lights
 
@@ -29,7 +29,7 @@ The authors of the paper shared their code publicly but... it's a little hard to
 
 The data comes from the [Fourth Integrated Household Survey 2016-2017](https://microdata.worldbank.org/index.php/catalog/lsms https://microdata.worldbank.org/index.php/catalog/2936/get-microdata). We'll focus on Malawi for this post. [The notebook](https://colab.research.google.com/drive/13b6HO7nhioYFRNTOjt47sAE51HWJ32iC) shows how to read in several of the CSV files downloaded from the website, and combine them into 'clusters' - see below. For each cluster location, we have a unique ID (HHID), a location (lat and lon), an urban/rural indicator, a weighting for statisticians, and the important variable: consumption (cons). This last one is the thing we'll be trying to predict.
 
-![](images/wordpress_export/2019/11/screenshot-from-2019-11-09-18-48-17.png?w=685)
+![](../images/wordpress_export/2019/11/screenshot-from-2019-11-09-18-48-17.png?w=685)
 
 The relevant info from the survey data
 
@@ -37,7 +37,7 @@ One snag: the lat and lon columns are tricksy! They've been shifted to protect a
 
 ## Adding nighttime lights
 
-![](images/wordpress_export/2019/11/screenshot-from-2019-11-09-18-57-07.png?w=720)
+![](../images/wordpress_export/2019/11/screenshot-from-2019-11-09-18-57-07.png?w=720)
 
 Getting the nightlights value for a given location
 
@@ -45,13 +45,13 @@ To get the nightlight data, we'll use the python library to run Google Earth Eng
 
 ## Downloading static maps images
 
-![](images/wordpress_export/2019/11/screenshot-from-2019-11-09-19-31-36.png?w=592)
+![](../images/wordpress_export/2019/11/screenshot-from-2019-11-09-19-31-36.png?w=592)
 
 Getting imagery for a given location
 
 The next step takes a while: we need to download images for the locations. BUT: we don't just want one for each cluster location - instead, we want a selection from the surrounding area. Each of these will have it's own nightlights value, so that we get a larger training set to build our model on. Later, we'll extract features for each image in a cluster and combine them. Details are in [the notebook](https://colab.research.google.com/drive/13b6HO7nhioYFRNTOjt47sAE51HWJ32iC). The code takes several hours to run, but at the end of it you'll have thousands of images ready to use.
 
-![](images/wordpress_export/2019/11/screenshot-from-2019-11-10-06-57-42.png?w=989)
+![](../images/wordpress_export/2019/11/screenshot-from-2019-11-10-06-57-42.png?w=989)
 
 Tracking requests/sec on in my Google Cloud Console
 
@@ -61,13 +61,13 @@ You'll notice that I only generate 20 locations around each cluster. The origina
 
 I'll be using fastai to simplify the model creation and training stages. before we can create a model, we need an appropriate databunch to hold the training data. An optional addition at this stage is to add image transforms to augment our training data - which I do with `tfms = get_transforms(flip_vert=True, max_lighting=0.1, max_zoom=1.05, max_warp=0.)` as suggested in the [fastai satelite imagery example](https://nbviewer.jupyter.org/github/fastai/course-v3/blob/master/nbs/dl1/lesson3-planet.ipynb) based on Planet labs. [The notebook](https://colab.research.google.com/drive/13b6HO7nhioYFRNTOjt47sAE51HWJ32iC) has the full code for creating the databunch:
 
-![](images/wordpress_export/2019/11/screenshot-from-2019-11-10-07-01-06.png?w=852)
+![](../images/wordpress_export/2019/11/screenshot-from-2019-11-10-07-01-06.png?w=852)
 
 Data ready for modelling
 
 Next, we choose a pre-trained model and re-train it with our data. Remember, the hope is that the model will learn features that are related to night lights and, by extension, consumption. I've had decent results with resnet models, but in the shared notebook I stick with models.vgg11\_bn to more closely match the original paper. You could do much more on this model training step, but we pick a learning rate, train for a few epochs and move on. Another place to improve!
 
-![](images/wordpress_export/2019/11/screenshot-from-2019-11-10-12-33-42.png?w=847)
+![](../images/wordpress_export/2019/11/screenshot-from-2019-11-10-12-33-42.png?w=847)
 
 Training the model to predict nightlights
 
@@ -75,7 +75,7 @@ Training the model to predict nightlights
 
 This is a really cool trick. We'll hook into one of the final layers of the network, with 512 outputs. We'll save these outputs as each image is run through the network, and they'll be used in later modelling stages. To save the features, you could remove the last few layers and run the data through, or you can use a trick I learnt from [this TDS article](https://towardsdatascience.com/finding-similar-images-using-deep-learning-and-locality-sensitive-hashing-9528afee02f5) and keep the network intact.
 
-![](images/wordpress_export/2019/11/screenshot-from-2019-11-10-12-41-14.png?w=689)
+![](../images/wordpress_export/2019/11/screenshot-from-2019-11-10-12-41-14.png?w=689)
 
 Cumulative explained variance of top PCA features
 

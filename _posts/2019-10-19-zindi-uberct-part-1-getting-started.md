@@ -19,25 +19,25 @@ So, we need to create a model that can predict how likely it is that there will 
 
 ## The data
 
-![](images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-26-48.png?w=1024)
+![](../images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-26-48.png?w=1024)
 
 The different road segments
 
 The roads along which events have been recorded have been divined into segments, each roughly 500m long (lengths vary). The events themselves each have a latitude and longitude associated with them, and have been tagged with the segment id of the nearest road segment. Due to map inaccuracies, the events don't always line up exactly with the road network.
 
-![](images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-26-21.png?w=1024)
+![](../images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-26-21.png?w=1024)
 
 Events (blue) not quite aligned with road segments.
 
 The main input file is 'train.csv', which contains the individual events. The submission requires grouping these into segments and making hourly predictions, so some re-shaping is required (see [the notebook](https://colab.research.google.com/drive/1HjJhghj2b5JJnOFNTcojLfAicDf5QWWK)).
 
-![](images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-26-27.png?w=1024)
+![](../images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-26-27.png?w=1024)
 
 train.csv - the base on which we'll build
 
 Extra data includes a shapefile of the road segments themselves. This shows the segments but also includes extra info like the umber of lanes, road name etc. There is also Uber Movenet data with travel times between different zones withing the city. In part 3 we'll look more at this.
 
-![](images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-33-44.png?w=1024)
+![](../images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-33-44.png?w=1024)
 
 Uber movement zones (red) with those along the road segments selected (green).
 
@@ -47,13 +47,13 @@ Finally, there is the data from SANRAL and the option to add weather data. Initi
 
 We're looking at each segment, for each hour. What kinds of features can we add that could help us create a model? The other data sources contain some useful info (as we'll see in the following posts) but even with just train.csv we can start building up some info to work with. For example, we can derive day of the week, time, month etc from the datetime - all of which likely influence the incident rate.
 
-![](images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-46-56.png?w=663)
+![](../images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-46-56.png?w=663)
 
 Adding some date-related variables
 
 We can also get the rough locations of the segments by looking at the locations of the incidents within them:
 
-![](images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-47-08.png?w=852)
+![](../images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-47-08.png?w=852)
 
 Adding location columns
 
@@ -63,7 +63,7 @@ There's plenty more, but for now let's fit a model and make some predictions.
 
 I went with CatBoost as a starting model. Good performance, reasonable handling of imbalanced data and it saves us having to fiddle with categorical columns. We specify the input and output columns, create a CatBoostClassifier and throw our data at it:
 
-![](images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-50-03.png?w=673)
+![](../images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-50-03.png?w=673)
 
 First model
 
@@ -77,7 +77,7 @@ One approach is by picking a threshold and predicting 1s where it is exceeded. I
 
 Another option is to mess about with the class\_weights parameter. I followed the advice in the docs, and got roughly the same score as I had with the threshold method.
 
-![](images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-03-38.png?w=423)
+![](../images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-03-38.png?w=423)
 
 Tip from the CatBoost documentation
 
@@ -85,7 +85,7 @@ Tip from the CatBoost documentation
 
 So, we have a model that predicts probabilities, and a threshold above which we'll predict a one. All that's left is to transform our sample submission dataframe the same way we did with train - adding time and location columns. Then we feed it through our model, save and submit!
 
-![](images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-05-49.png?w=994)
+![](../images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-05-49.png?w=994)
 
 Making predictions
 

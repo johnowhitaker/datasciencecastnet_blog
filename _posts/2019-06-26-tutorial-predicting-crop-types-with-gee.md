@@ -13,17 +13,17 @@ I won't include all the code here. Instead, view it and try it for yourself [her
 
 The important data is contained in a shapefile (a mapping-related file format for 'vector' layers that can contain points, lines or polygons). It contains multiple features (polygons), each representing a field with a certain kind of crop. The crop type is encoded as a number from 1 to 10. More info [here](https://zindi.africa/competitions/farm-pin-crop-detection-challenge/data).
 
-![](images/wordpress_export/2019/06/screenshot-from-2019-06-25-18-44-51.png)
+![](../images/wordpress_export/2019/06/screenshot-from-2019-06-25-18-44-51.png)
 
 Some features in the 'train' shapefile.
 
 We can upload this data as an asset in GEE by using the 'New Table Upload' option and selecting all the files except `train.qpj` (which is unnecessary). I named the asset 'farm\_zindi\_train', and repeated the steps for the test dataset.
 
-![](images/wordpress_export/2019/06/screenshot-from-2019-06-25-18-10-58.png)
+![](../images/wordpress_export/2019/06/screenshot-from-2019-06-25-18-10-58.png)
 
 There is one last hurdle we must overcome when using this data to train classifiers in GEE. Each feature in the training shapefile contains a property, 'Crop\_Id\_Ne', that tells us the crop type. Unfortunately, this is represented as a string. To convert it to the required type, we create a function that is mapped over the feature collection and use `ee.Number.parse()` to convert the string into a number for the model to use.
 
-![](images/wordpress_export/2019/06/screenshot-from-2019-06-26-10-09-21.png)
+![](../images/wordpress_export/2019/06/screenshot-from-2019-06-26-10-09-21.png)
 
 Getting the required properties in the correct type by mapping a function over the collection
 
@@ -35,7 +35,7 @@ Instead of the Sentinel-2 imagery the competition is using, we'll see if we can 
 
 The ['Supervised Classification' guide](https://developers.google.com/earth-engine/classification) by Google is good place to start when attempting this kind of classification task. The only changes I made to the provided code was to change the references to match my own training data, tweak the scale to reduce memory use and specify the property we're trying to predict (in our case, 'CID' for crop ID). Looking at the output, it seems to roughly match the farm outlines - a good sign.
 
-![](images/wordpress_export/2019/06/screenshot-from-2019-06-26-10-29-47.png)
+![](../images/wordpress_export/2019/06/screenshot-from-2019-06-26-10-29-47.png)
 
 Classifier output with farm boundaries shown.
 
@@ -49,19 +49,19 @@ The accuracy of a CART classifier is listed as **65%**. Not bad, given that ther
 
 To get the predicted crop type in each region of the test file, we look at the most common crop type predicted by the classifier in each region and export the predictions to a CSV file:
 
-![](images/wordpress_export/2019/06/screenshot-from-2019-06-26-10-37-39.png)
+![](../images/wordpress_export/2019/06/screenshot-from-2019-06-26-10-37-39.png)
 
 Exporting predictions
 
 This results in a file containing columns for Field\_Id and predicted crop type. Normally, this is what we'd like. However, the Zindi contest specifies the submission with predicted probabilities for each different crop:
 
-![](images/wordpress_export/2019/06/screenshot-from-2019-06-26-10-40-17.png)
+![](../images/wordpress_export/2019/06/screenshot-from-2019-06-26-10-40-17.png)
 
 The submission format
 
 To get the data in this format, I used Python and pandas, with the pandas get\_dummies function:
 
-![](images/wordpress_export/2019/06/screenshot-from-2019-06-26-10-42-31.png)
+![](../images/wordpress_export/2019/06/screenshot-from-2019-06-26-10-42-31.png)
 
 Formatting the data correctly
 

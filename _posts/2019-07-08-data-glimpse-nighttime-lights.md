@@ -9,7 +9,7 @@ This 'Data Glimpse' post will look at the Global Radiance-Calibrated Nighttime L
 
 The dataset is a collection of images from different years showing nighttime lights all over the globe. This information can be used to see where people are \[2\] and estimate measures such as economic activity in an area \[3\]. They have been used in some great research estimating the Global Human Footprint and highlighting the last wild places on earth \[4\].
 
-![](images/wordpress_export/2019/07/screenshot-from-2019-07-07-10-06-52.png)
+![](../images/wordpress_export/2019/07/screenshot-from-2019-07-07-10-06-52.png)
 
 Nighttime lights displayed in GEE
 
@@ -21,7 +21,7 @@ Instead of a large raster image, we might want to aggregate the data by region. 
 
 With the input region(s) defined, the key step is to use the `reduceRegions` function to add properties to each feature (area) that summarize the underlying raster. For example, with an image of nighttime illumination in the year 2000 called 'lights\_2000' and the landuses map, we can add the mean illumination in each area with `var landuse_with_lights = lights_2000.reduceRegions(landuses, ee.Reducer.mean());`. The result can be exported as a shapefile or CSV file (see the [script](https://code.earthengine.google.com/d82fba85f9bed557fd58c650cb7a38cd) for details) and displayed or analyses in whatever software you like.
 
-![](images/wordpress_export/2019/07/screenshot-from-2019-07-07-10-28-00.png)
+![](../images/wordpress_export/2019/07/screenshot-from-2019-07-07-10-28-00.png)
 
 Average nighttime illumination over Zimbabwe
 

@@ -13,7 +13,7 @@ Explaining this unattributed transmission is one of the example questions provid
 
 I was looking at all this as I procrastinated some work I'm doing mapping baobab trees. It occurred to me that it wouldn't be completely absurd to see if there is any relation between the two subjects. Now you'll just have to take my word on this for now, but rest assured that I have a decently accurate map of baobab tree density for Zimbabwe and surrounds. I quickly downloaded the residuals maps and fired up QGIS to take a look.
 
-![](images/wordpress_export/2019/01/screenshot-from-2019-01-22-15-02-04.png)
+![](../images/wordpress_export/2019/01/screenshot-from-2019-01-22-15-02-04.png)
 
 This isn't the density map I used, but it is similar and looks prettier
 
@@ -21,7 +21,7 @@ Estimating correlation by looking at two maps and saying "there seems to be some
 
 Stackoverflow "get raster value at point" since it's been a while. Wow - I don't even have the gdal toolbox on this laptop yet! Technical hurdles out of the way, I threw together some code:
 
-![](images/wordpress_export/2019/01/screenshot-from-2019-01-22-14-37-13.png)
+![](../images/wordpress_export/2019/01/screenshot-from-2019-01-22-14-37-13.png)
 
 Full code listing on Github <LINK>
 
@@ -29,7 +29,7 @@ Creating regularly spaced points over the area of interest (i.e. the area I have
 
 _scipy.stats.pearsonr(densities, maleria\_residuals)_ yields a correlation coefficient of -0.1226401351031383, p=0. That is, places with more baobabs have less unattributed transmission than places without. To show this visually, let's look at a scatter plot of the two variables:
 
-![](images/wordpress_export/2019/01/scatter.png)
+![](../images/wordpress_export/2019/01/scatter.png)
 
 Scatter plot - unattributed transmission vs baobab density
 

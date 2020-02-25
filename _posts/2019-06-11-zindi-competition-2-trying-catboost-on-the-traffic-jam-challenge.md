@@ -7,11 +7,11 @@ Zindi ran a challenge predicting bus ticket sales into Nairobi. It is now closed
 
 With a little massaging, the data looks like this:
 
-![](images/wordpress_export/2019/06/screenshot-from-2019-06-11-11-05-03.png)
+![](../images/wordpress_export/2019/06/screenshot-from-2019-06-11-11-05-03.png)
 
 The 'travel\_time' (in minutes) and 'day' columns were derived from the initial datetime data. I'll spare you the code (it's available in [this GitHub repo](https://github.com/johnowhitaker/catboost_traffic_solution)) but I pulled in travel times from Uber Movement, and added them as an extra column. The test data looks the same, but lacks the 'Count' column - the thing we're trying to predict. Normally you'd have to do extra processing: encoding the categorical columns, scaling the numerical features... luckily, catboost makes it very easy:
 
-![](images/wordpress_export/2019/06/screenshot-from-2019-06-11-11-13-48.png)
+![](../images/wordpress_export/2019/06/screenshot-from-2019-06-11-11-13-48.png)
 
 Training the model
 

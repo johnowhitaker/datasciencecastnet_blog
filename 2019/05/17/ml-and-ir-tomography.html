@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/datasciencecastnet_blog/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>ML and IR Tomography | fastpages</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="ML and IR Tomography" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I studied Electrical and Computer Engineering at UCT, and the final year project was my chance to really dive deep into a topic. I chose IR tomography, and explored various questions around that topic. For today’s post, I’ll focus on one small aspect: the use of machine learning. This post will go through some background and then show a couple of ML models in use. For much more detail and my full thesis, see this GitHub repository." />
+<meta property="og:description" content="I studied Electrical and Computer Engineering at UCT, and the final year project was my chance to really dive deep into a topic. I chose IR tomography, and explored various questions around that topic. For today’s post, I’ll focus on one small aspect: the use of machine learning. This post will go through some background and then show a couple of ML models in use. For much more detail and my full thesis, see this GitHub repository." />
+<link rel="canonical" href="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/05/17/ml-and-ir-tomography.html" />
+<meta property="og:url" content="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/05/17/ml-and-ir-tomography.html" />
+<meta property="og:site_name" content="fastpages" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-05-17T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"I studied Electrical and Computer Engineering at UCT, and the final year project was my chance to really dive deep into a topic. I chose IR tomography, and explored various questions around that topic. For today’s post, I’ll focus on one small aspect: the use of machine learning. This post will go through some background and then show a couple of ML models in use. For much more detail and my full thesis, see this GitHub repository.","@type":"BlogPosting","headline":"ML and IR Tomography","dateModified":"2019-05-17T00:00:00-05:00","datePublished":"2019-05-17T00:00:00-05:00","url":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/05/17/ml-and-ir-tomography.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/05/17/ml-and-ir-tomography.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/datasciencecastnet_blog/assets/main.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml" title="fastpages" />
+
+  <script>
+  function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+  window.onload = wrap_img;
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      // add link icon to anchor tags
+      var elem = document.querySelectorAll(".anchor-link")
+      elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+      // remove paragraph tags in rendered toc (happens from notebooks)
+      var toctags = document.querySelectorAll(".toc-entry")
+      toctags.forEach(e => (e.firstElementChild.innerText = e.firstElementChild.innerText.replace('¶', '')))
+    });
+  </script>
+</head><body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/datasciencecastnet_blog/">fastpages</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/datasciencecastnet_blog/about/">About Me</a><a class="page-link" href="/datasciencecastnet_blog/search/">Search</a><a class="page-link" href="/datasciencecastnet_blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">ML and IR Tomography</h1><p class="post-meta post-meta-title"><time class="dt-published" datetime="2019-05-17T00:00:00-05:00" itemprop="datePublished">
+        May 17, 2019
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      6 min read
+    
+</span></p>
+
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>I studied Electrical and Computer Engineering at UCT, and the final year project was my chance to really dive deep into a topic. I chose IR tomography, and explored various questions around that topic. For today’s post, I’ll focus on one small aspect: the use of machine learning. This post will go through some background and then show a couple of ML models in use. For much more detail and my full thesis, see this <a href="https://github.com/johnowhitaker/CIRTS">GitHub repository.</a></p>
+
+<h2 id="background">Background</h2>
+
+<p>This project arose because I wanted to do some experiments with Computed Tomography, but I didn’t know enough to see what would work and what wouldn’t. How many sensors does one need to achieve a particular goal for resolution or performance? What geometries work best? And what if we can’t keep everything nice and regular? </p>
+
+<p><a href="https://cdn.hackaday.io/images/3765251542371976038.png"><img src="https://cdn.hackaday.io/images/3765251542371976038.png" alt="" /></a></p>
+
+<p>I built some tools that let me simulate these kinds of arrangements, and did some early experiments on image reconstruction and on the use of machine learning (specifically neural networks) to make sense of readings. Even with a weird arrangement like the one on the right, I could make some sense of the data. For more information on the simulation side, see the report in the <a href="https://github.com/johnowhitaker/CIRTS">GitHub repository</a>.</p>
+
+<p>I tested out these arrangements in the real world by building some fixed arrangements, and by using a 3D printed scanner to position an LED and a phototransistor (PT from now on) in different locations to slowly simulate having many detectors and emitters. Using light as opposed to X-rays means cheap emitters and detectors, and of course much less danger.</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/05/ring_of_8_kapton.jpeg" alt="" /></p>
+
+<p>A ring of 8 LEDs and 8 PTs. Larger rings were also constructed, and the scanner could simulate arrangements of &gt;1000 sensors and emitters.</p>
+
+<p>By taking a set of readings, we can start to estimate how much light travels along different paths, and thus build up an image of whatever is being scanned. This works well with lots of readings from the scanner:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-17-37.png" alt="" /></p>
+
+<p>A reconstructed image of some small nails. The scanner could resolve objects less than 1mm in size.</p>
+
+<p>However, for arrangements with relatively few sensors (such as the static arrangement of 8 shown above), the reconstructed images are an apparently meaningless blur. The goal of this project was to use ML to make sense of these sets of readings, for example by identifying objects placed within the sensor ring or estimating their position.</p>
+
+<h2 id="model-selection">Model Selection</h2>
+
+<p>To answer the question “can machine learning be useful”, I needed to pick a good approach to take. Simply throwing the data at a decision tree and then noting the performance wouldn’t cut it - every choice needs to be justified. I wrote a notebook explaining the process <a href="https://github.com/johnowhitaker/CIRTS/blob/master/Model%20Selection/Model%20Selection.ipynb">here</a>, but the basics are as follows:</p>
+
+<ol>
+  <li>Define your problem (for example, classifying objects) and load the data</li>
+  <li>Pick a type of model to try (for example, Logistic Regression)</li>
+  <li>Train a model, and see how well it performs by splitting your data into training and testing sets. Use cross-validation to get more representative scores.</li>
+  <li>Tune the model parameters. For example, try different values on ‘gamma’ (a regularisation parameter) for a Support Vector based classifier.</li>
+  <li>Repeat for different types of model, and compare the scores</li>
+</ol>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-28-05.png" alt="" /></p>
+
+<p>Choosing the optimum number of hidden layers for a Multi-Layer Perceptron model (Neural Network)</p>
+
+<p>For example, in the case of object classification, a neural network approach worked best (of the models tested):</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-27-48.png" alt="" /></p>
+
+<p>Model scores on a classification task</p>
+
+<h2 id="object-classification">Object Classification</h2>
+
+<p>Using the ring with 8 LEDs and 8 PTs, I’d place an object randomly within the ring. The object (one of four used) and location (which of four ‘quadrants’ contained the object) were recorded along with a set of readings from the sensors. This data was stored in a csv file for later analysis.</p>
+
+<p>Using the model selected according to the method in the previous section, I was able to achieve an accuracy of 85% (multi-class classification) or 97% (binary classification with only two objects) using 750 samples for training. More training data resulted in better accuracy.</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-36-52.png" alt="" /></p>
+
+<p>Model performance with more training samples for multi-class classification (orange)<br />
+and binary classification (blue)</p>
+
+<p>This was a fun result, and a good ML exercise. The data and a notebook showing the process of loading the data and training models can be found in the <a href="https://github.com/johnowhitaker/CIRTS/tree/master/Model%20Selection">‘Model Selection’ folder of the GitHub repository.</a></p>
+
+<h2 id="position-inference">Position Inference</h2>
+
+<p>Here, instead of trying to identify an object we attempt to predict it’s location. This requires knowing the position precisely when collecting training data - a problem I solved by using a 3D printer to move the object about under computer control.</p>
+
+<p><img src="https://cdn.hackaday.io/images/original/6463721543608288198.gif" alt="" /></p>
+
+<p>Gathering training data for position inference</p>
+
+<p>This results in a <a href="https://github.com/johnowhitaker/CIRTS/blob/master/Pos_inf_r14/reads_500.csv">dataset</a> consisting of a set of readings followed by an X and Y position. The goal is to train a model to predict the position based on the readings. For the ring of 8, the model could predict the location with an error of ~10% of the radius of the ring - approximately 7mm. For the ring of 14 (pictured above, and the source of the linked dataset), I was able to get the RMSE down to 1.6mm (despite the ring being larger) using the tricks from the next section. You can read more about this on my <a href="https://hackaday.io/project/162352-cirts-configurable-infra-red-tomography-systems">hackaday.io</a> page.</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-51-05.png" alt="" /></p>
+
+<p>Playing a game with the sensor ring.</p>
+
+<p>The ring can take readings very fast, and being able to go from these readings to a fairly accurate position opens up some fun possibilities. I hooked it up to a game I had written. A player inserts a finger into the ring and moves it about to control a ‘spaceship’, which must dodge enemies to survive. It was a hit with my digs-mates at the time.</p>
+
+<h2 id="using-simulation-to-boost-performance">Using Simulation to boost performance</h2>
+
+<p>One downside of this approach is that it takes many training samples to get a model that performs adequately. It takes time to generate this training data, and in an industrial situation it might be impossible to simulate all possible positions in a reasonable time-frame. Since I already had a simulator I had coded, why not try to use it to generate some fake training data?</p>
+
+<p>Using purely simulated data resulted in some spectacularly bad results, but if a model was ‘primed’ with even a small real-world training dataset (say, 50 samples) then adding simulated data could improve the model and make it more robust. I’ll let the results speak for themselves:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-55-41.png" alt="" /></p>
+
+<p>Model performance for position inference with and without simulated data for training</p>
+
+<p>The simulator didn’t map to real life exactly, and no doubt could be improved to offer even more performance gains. But even as-is, it allows us to use far less training data to achieve the same result. Notice that a model trained on 150 samples does worse than one using only 50 samples but augmented with extra simulated data. A nifty result to keep in mind if you’re ever faced with a dataset that’s just a little too small!</p>
+
+<h2 id="conclusions">Conclusions</h2>
+
+<p>I had a ton of fun on this project, and this post only really scratches the surface. If you’re keen to learn more, do take a look at the <a href="https://github.com/johnowhitaker/CIRTS/blob/master/EEE4022S_2018_FINAL_REPORT_WHTJON002_WHITAKER_J_WILKINSON.pdf">full report(PDF)</a> and <a href="https://hackaday.io/project/162352-cirts-configurable-infra-red-tomography-systems">hackaday project</a>. This is a great example of machine learning being used to get meaningful outputs from a set of noisy, complicated data. And it shows the potential for using simulation of complex processes to augment training data for better model performance - a very cool result.</p>
+
+<p>I’m thinking about moving this website in a different direction as I start on a new project - stay tuned for news!</p>
+
+  </div><a class="u-url" href="/datasciencecastnet_blog/2019/05/17/ml-and-ir-tomography.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/datasciencecastnet_blog/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">fastpages</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">fastpages</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list">
+  <li><a href="https://github.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#github"></use></svg> <span class="username">johnowhitaker</span></a></li><li><a href="https://www.twitter.com/fastdotai"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">fastdotai</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

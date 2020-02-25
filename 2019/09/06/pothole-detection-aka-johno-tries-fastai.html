@@ -2,25 +2,25 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/datasciencecastnet_blog/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
 <title>Pothole Detection (aka Johno tries fastai) | datasciencecastnet</title>
 <meta name="generator" content="Jekyll v3.8.5" />
 <meta property="og:title" content="Pothole Detection (aka Johno tries fastai)" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="This week saw folks from all over the AI space converge in Cape Town for the AI Expo. The conference was inspiring, and I had a great time chatting to all sorts of interesting people. There were so many different things happening (which I’m not going to cover here), but the one that led to this post was a hackathon run by Zindi for their most recent Knowledge competition: the MIIA Pothole Image Classification Challenge. This post will cover the basic approach used by many entrants (thanks to Jan Marais’ excellent starting notebook) and how I improved on it with a few tweaks. Let’s dive in." />
 <meta property="og:description" content="This week saw folks from all over the AI space converge in Cape Town for the AI Expo. The conference was inspiring, and I had a great time chatting to all sorts of interesting people. There were so many different things happening (which I’m not going to cover here), but the one that led to this post was a hackathon run by Zindi for their most recent Knowledge competition: the MIIA Pothole Image Classification Challenge. This post will cover the basic approach used by many entrants (thanks to Jan Marais’ excellent starting notebook) and how I improved on it with a few tweaks. Let’s dive in." />
-<link rel="canonical" href="https://datasciencecastnet.com/2019/09/06/pothole-detection-aka-johno-tries-fastai.html" />
-<meta property="og:url" content="https://datasciencecastnet.com/2019/09/06/pothole-detection-aka-johno-tries-fastai.html" />
+<link rel="canonical" href="https://datasciencecastnet.com/datasciencecastnet_blog/2019/09/06/pothole-detection-aka-johno-tries-fastai.html" />
+<meta property="og:url" content="https://datasciencecastnet.com/datasciencecastnet_blog/2019/09/06/pothole-detection-aka-johno-tries-fastai.html" />
 <meta property="og:site_name" content="datasciencecastnet" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2019-09-06T00:00:00-05:00" />
 <script type="application/ld+json">
-{"description":"This week saw folks from all over the AI space converge in Cape Town for the AI Expo. The conference was inspiring, and I had a great time chatting to all sorts of interesting people. There were so many different things happening (which I’m not going to cover here), but the one that led to this post was a hackathon run by Zindi for their most recent Knowledge competition: the MIIA Pothole Image Classification Challenge. This post will cover the basic approach used by many entrants (thanks to Jan Marais’ excellent starting notebook) and how I improved on it with a few tweaks. Let’s dive in.","@type":"BlogPosting","headline":"Pothole Detection (aka Johno tries fastai)","dateModified":"2019-09-06T00:00:00-05:00","datePublished":"2019-09-06T00:00:00-05:00","url":"https://datasciencecastnet.com/2019/09/06/pothole-detection-aka-johno-tries-fastai.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://datasciencecastnet.com/2019/09/06/pothole-detection-aka-johno-tries-fastai.html"},"@context":"https://schema.org"}</script>
+{"description":"This week saw folks from all over the AI space converge in Cape Town for the AI Expo. The conference was inspiring, and I had a great time chatting to all sorts of interesting people. There were so many different things happening (which I’m not going to cover here), but the one that led to this post was a hackathon run by Zindi for their most recent Knowledge competition: the MIIA Pothole Image Classification Challenge. This post will cover the basic approach used by many entrants (thanks to Jan Marais’ excellent starting notebook) and how I improved on it with a few tweaks. Let’s dive in.","@type":"BlogPosting","headline":"Pothole Detection (aka Johno tries fastai)","dateModified":"2019-09-06T00:00:00-05:00","datePublished":"2019-09-06T00:00:00-05:00","url":"https://datasciencecastnet.com/datasciencecastnet_blog/2019/09/06/pothole-detection-aka-johno-tries-fastai.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://datasciencecastnet.com/datasciencecastnet_blog/2019/09/06/pothole-detection-aka-johno-tries-fastai.html"},"@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/main.css">
-  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://datasciencecastnet.com/feed.xml" title="datasciencecastnet" />
+  <link rel="stylesheet" href="/datasciencecastnet_blog/assets/main.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://datasciencecastnet.com/datasciencecastnet_blog/feed.xml" title="datasciencecastnet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
     <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
@@ -72,7 +72,7 @@
   </script>
 </head><body><header class="site-header" role="banner">
 
-  <div class="wrapper"><a class="site-title" rel="author" href="/">datasciencecastnet</a><nav class="site-nav">
+  <div class="wrapper"><a class="site-title" rel="author" href="/datasciencecastnet_blog/">datasciencecastnet</a><nav class="site-nav">
         <input type="checkbox" id="nav-trigger" class="nav-trigger" />
         <label for="nav-trigger">
           <span class="menu-icon">
@@ -82,7 +82,7 @@
           </span>
         </label>
 
-        <div class="trigger"><a class="page-link" href="/about/">About Me</a><a class="page-link" href="/search/">Search</a><a class="page-link" href="/categories/">Tags</a></div>
+        <div class="trigger"><a class="page-link" href="/datasciencecastnet_blog/about/">About Me</a><a class="page-link" href="/datasciencecastnet_blog/search/">Search</a><a class="page-link" href="/datasciencecastnet_blog/categories/">Tags</a></div>
       </nav></div>
 </header>
 <main class="page-content" aria-label="Content">
@@ -113,19 +113,19 @@
 
 <ul>
   <li>
-    <p><img src="/images/wordpress_export/2019/09/afgodmvdulkmncm.jpg?w=800" alt="" /></p>
+    <p><img src="datasciencecastnet_blog/images/wordpress_export/2019/09/afgodmvdulkmncm.jpg?w=800" alt="" /></p>
   </li>
   <li>
-    <p><img src="/images/wordpress_export/2019/09/afihpmcypxahscw.jpg?w=800" alt="" /></p>
+    <p><img src="datasciencecastnet_blog/images/wordpress_export/2019/09/afihpmcypxahscw.jpg?w=800" alt="" /></p>
   </li>
   <li>
-    <p><img src="/images/wordpress_export/2019/09/afwgvfetkbovxyw.jpg?w=800" alt="" /></p>
+    <p><img src="datasciencecastnet_blog/images/wordpress_export/2019/09/afwgvfetkbovxyw.jpg?w=800" alt="" /></p>
   </li>
   <li>
-    <p><img src="/images/wordpress_export/2019/09/agagvuntihgxtfg.jpg?w=800" alt="" /></p>
+    <p><img src="datasciencecastnet_blog/images/wordpress_export/2019/09/agagvuntihgxtfg.jpg?w=800" alt="" /></p>
   </li>
   <li>
-    <p><img src="/images/wordpress_export/2019/09/aggttmhdaqmxmii.jpg?w=800" alt="" /></p>
+    <p><img src="datasciencecastnet_blog/images/wordpress_export/2019/09/aggttmhdaqmxmii.jpg?w=800" alt="" /></p>
   </li>
 </ul>
 
@@ -139,7 +139,7 @@
   <li>Load the data into a ‘databunch’, containing both the labeled training data and the unlabeled test data. Using 15% of the training data as a validation set. The images are scaled to 224px squares and grouped into batches.</li>
 </ul>
 
-<p><img src="/images/wordpress_export/2019/09/screenshot-from-2019-09-06-09-49-31.png?w=934" alt="" /></p>
+<p><img src="datasciencecastnet_blog/images/wordpress_export/2019/09/screenshot-from-2019-09-06-09-49-31.png?w=934" alt="" /></p>
 
 <p>The images are automatically warped randomly each time (to make the model more robust). This can be configured, but the default is pretty good.</p>
 
@@ -148,7 +148,7 @@
   <li>Pick a learning rate, by calling <code class="language-plaintext highlighter-rouge">learn.lr_find()</code> followed by <code class="language-plaintext highlighter-rouge">learn.recorder.plot()</code> and picking one just before the graph bottoms out (OK, it’s more complicated than that but you can learn the arcane art of lr optimization elsewhere)</li>
 </ul>
 
-<p><img src="/images/wordpress_export/2019/09/screenshot-from-2019-09-06-09-55-21.png?w=417" alt="" /></p>
+<p><img src="datasciencecastnet_blog/images/wordpress_export/2019/09/screenshot-from-2019-09-06-09-55-21.png?w=417" alt="" /></p>
 
 <p>*sucks thumb* A learning rate of 0.05 looks fine to me Bob.</p>
 
@@ -162,7 +162,7 @@
 
 <p>As the day kicked off, I dropped a few hints about taking a look at the images themselves and seeing how one could get rid of unnecessary information. An obvious answer would be to crop the images a little - there aren’t potholes in the dashboard or the sky! I don’t think anyone tried it, so let’s give it a go now and see where we get. One <a href="https://stackoverflow.com/questions/14177744/how-does-perspective-transformation-work-in-pil/14178717">StackOverflow page</a> later, I had code to crop and warp an image:</p>
 
-<p><img src="/images/wordpress_export/2019/09/warped.png?w=1024" alt="" /></p>
+<p><img src="datasciencecastnet_blog/images/wordpress_export/2019/09/warped.png?w=1024" alt="" /></p>
 
 <p>Before and after warping. Now the road is the focus, and we’re not wasting effort on the periphery.</p>
 
@@ -170,7 +170,7 @@
 
 <h2 id="conclusions">Conclusions</h2>
 
-<p><img src="/images/wordpress_export/2019/09/screenshot-from-2019-09-06-10-25-22.png?w=1024" alt="" /></p>
+<p><img src="datasciencecastnet_blog/images/wordpress_export/2019/09/screenshot-from-2019-09-06-10-25-22.png?w=1024" alt="" /></p>
 
 <p>My time in the sun</p>
 
@@ -180,11 +180,11 @@
 
 <p>Why are you still reading this? Go enter the competition already! :)</p>
 
-  </div><a class="u-url" href="/2019/09/06/pothole-detection-aka-johno-tries-fastai.html" hidden></a>
+  </div><a class="u-url" href="/datasciencecastnet_blog/2019/09/06/pothole-detection-aka-johno-tries-fastai.html" hidden></a>
 </article>
       </div>
     </main><footer class="site-footer h-card">
-  <data class="u-url" href="/"></data>
+  <data class="u-url" href="/datasciencecastnet_blog/"></data>
 
   <div class="wrapper">
 
@@ -197,7 +197,7 @@
       </div>
 
       <div class="footer-col footer-col-2"><ul class="social-media-list">
-  <li><a href="https://github.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">johnowhitaker</span></a></li><li><a href="https://www.twitter.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">johnowhitaker</span></a></li></ul>
+  <li><a href="https://github.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#github"></use></svg> <span class="username">johnowhitaker</span></a></li><li><a href="https://www.twitter.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">johnowhitaker</span></a></li></ul>
 </div>
 
       <div class="footer-col footer-col-3">

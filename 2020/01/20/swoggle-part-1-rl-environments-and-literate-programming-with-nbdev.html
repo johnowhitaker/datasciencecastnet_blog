@@ -123,7 +123,7 @@
 
 <p>Christmas, 2019. Our wedding has brought a higher-than-normal influx of relatives to Cape Town, and when this extended family gets together, there are some things that are inevitable. One of these, it turns out, is the invention of new games to keep the cousins entertained. And thus, Swoggle was born :)</p>
 
-<p><img src="images/wordpress_export/2020/01/screenshot-from-2020-01-20-05-45-04.png?w=546" alt="" /></p>
+<p><img src="../images/wordpress_export/2020/01/screenshot-from-2020-01-20-05-45-04.png?w=546" alt="" /></p>
 
 <p>A Swoggle game in progress - 2 players are left.</p>
 
@@ -135,13 +135,13 @@
 
 <p>If we’re going to teach a computer to play this, we need a way to represent the game state, check if moves are valid, keep track of who’s in the swoggle spa and which bases are still standing, etc. I settled on something like this:</p>
 
-<p><img src="images/wordpress_export/2020/01/screenshot-from-2020-01-20-05-57-13.png?w=332" alt="" /></p>
+<p><img src="../images/wordpress_export/2020/01/screenshot-from-2020-01-20-05-57-13.png?w=332" alt="" /></p>
 
 <p>Game state representation</p>
 
 <p>There is a <code class="language-plaintext highlighter-rouge">Cell</code> in each x, y location, with attributes for player, drone and base. These cells are grouped in a <code class="language-plaintext highlighter-rouge">Board</code>, which represents the game grid and tracks the spa. The <code class="language-plaintext highlighter-rouge">Board</code> class also contains some useful methods like <code class="language-plaintext highlighter-rouge">is_valid_move()</code> and ways to move a particular player around. At the highest level, I have a <code class="language-plaintext highlighter-rouge">Swoggle</code> class that wraps a board, handles setting up the initial layout, provides a few extra convenience functions and can be used to run a game manually or with some combination of agents (which we’ll cover in the next section). Since I’m working in NBDev, I have some docs with almost no effort, so check out <a href="https://johnowhitaker.github.io/swoggle/">https://johnowhitaker.github.io/swoggle/</a> for details on this implementation. Here’s what the documentation system turned my notebooks into:</p>
 
-<p><img src="images/wordpress_export/2020/01/screenshot-from-2020-01-20-05-34-12-1.png?w=1024" alt="" /></p>
+<p><img src="../images/wordpress_export/2020/01/screenshot-from-2020-01-20-05-34-12-1.png?w=1024" alt="" /></p>
 
 <p>Part of the generated documentation</p>
 

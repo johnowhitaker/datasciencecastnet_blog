@@ -6,8 +6,8 @@
 # https://learn-the-web.algonquindesign.ca/topics/markdown-yaml-cheat-sheet/#yaml
 # https://learnxinyminutes.com/docs/yaml/
 
-title: fastpages
-description: An easy to use blogging platform with support for Jupyter Notebooks.
+title: datasciencecastnet
+description: Sharing my finds as I trawl through the world of data science
 github_username: johnowhitaker
 # you can comment the below line out if your repo name is not different than your baseurl
 github_repo: "datasciencecastnet_blog"
@@ -17,11 +17,11 @@ url: "https://johnowhitaker.github.io" # the base hostname & protocol for your s
 baseurl: "/datasciencecastnet_blog" # the subpath of your site, e.g. "/blog".  WARNING: if you are not using a custom domain, the baseurl *must* be set to your repo name.
 
 # Email and twitter are optional:
-email: 
-twitter_username: "fastdotai"
+email: johnowhitaker@yahoo.com
+twitter_username: "johnowhitaker"
 
 # Set this to true to get LaTeX math equation support
-use_math: 
+use_math: true
 
 # Set this to true to display the summary of your blog post under your title on the Home page.
 show_description: true
@@ -33,7 +33,7 @@ show_image: false
 show_tags: true
 
 # Add your Google Analytics ID here if you have one and want to use it
-google_analytics:
+google_analytics: UA-159043274-1
 
 exclude:
   - CONTRIBUTING.md

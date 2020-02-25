@@ -3,7 +3,7 @@ title: "Self-Supervised Learning with Image网"
 date: "2020-02-22"
 ---
 
-## Intro
+## Self-Supervised Learning with Image网
 
 Until fairly recently, deep learning models needed a LOT of data to get decent performance. Then came an innovation called transfer learning, which we've covered in some previous posts. We train a network once on a huge dataset (such as ImageNet, or the entire text of Wikipedia), and it learns all kinds of useful features. We can then retrain or 'fine-tune' this pretrained model on a new task (say, elephant vs zebra), and get incredible accuracy with fairly small training sets. But what do we do when there isn't a pretrained model available?
 

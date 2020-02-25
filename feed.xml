@@ -1,4 +1,55 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml" rel="self" type="application/atom+xml" /><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/" rel="alternate" type="text/html" /><updated>2020-02-25T02:53:09-06:00</updated><id>https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml</id><title type="html">fastpages</title><subtitle>An easy to use blogging platform with support for Jupyter Notebooks.</subtitle><entry><title type="html">Fastpages Notebook Blog Post</title><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/fastpages/jupyter/2020/02/20/test.html" rel="alternate" type="text/html" title="Fastpages Notebook Blog Post" /><published>2020-02-20T00:00:00-06:00</published><updated>2020-02-20T00:00:00-06:00</updated><id>https://johnowhitaker.github.io/datasciencecastnet_blog/fastpages/jupyter/2020/02/20/test</id><content type="html" xml:base="https://johnowhitaker.github.io/datasciencecastnet_blog/fastpages/jupyter/2020/02/20/test.html">&lt;!--
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml" rel="self" type="application/atom+xml" /><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/" rel="alternate" type="text/html" /><updated>2020-02-25T02:55:23-06:00</updated><id>https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml</id><title type="html">fastpages</title><subtitle>An easy to use blogging platform with support for Jupyter Notebooks.</subtitle><entry><title type="html">Intro</title><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/2020/02/22/self-supervised-learning-with-image-e7-bd-91.html" rel="alternate" type="text/html" title="Intro" /><published>2020-02-22T00:00:00-06:00</published><updated>2020-02-22T00:00:00-06:00</updated><id>https://johnowhitaker.github.io/datasciencecastnet_blog/2020/02/22/self-supervised-learning-with-image%E7%BD%91</id><content type="html" xml:base="https://johnowhitaker.github.io/datasciencecastnet_blog/2020/02/22/self-supervised-learning-with-image-e7-bd-91.html">&lt;p&gt;Until fairly recently, deep learning models needed a LOT of data to get decent performance. Then came an innovation called transfer learning, which we’ve covered in some previous posts. We train a network once on a huge dataset (such as ImageNet, or the entire text of Wikipedia), and it learns all kinds of useful features. We can then retrain or ‘fine-tune’ this pretrained model on a new task (say, elephant vs zebra), and get incredible accuracy with fairly small training sets. But what do we do when there isn’t a pretrained model available?&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/02/ssl.png?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Pretext tasks (left) vs downstream task (right). I think I need to develop this style of illustration - how else will readers know that this blog is just a random dude writing on weekends? :)&lt;/p&gt;
+
+&lt;p&gt;Enter Self-Supervised Learning (SSL). The idea here is that in some domains, there may not be vast amounts of labeled data, but there may be an abundance of unlabeled data. Can we take advantage of this by using it somehow to train a model that, as with transfer learning, can then be re-trained for a new task on a small dataset? It turns out the answer is yes - and it’s shaking things up in a big way. &lt;a href=&quot;https://www.fast.ai/2020/01/13/self_supervised/&quot;&gt;This fastai blog post&lt;/a&gt; gives a nice breakdown of SSL, and shows some examples of ‘pretext tasks’ - tasks we can use to train a network on unlabeled data. In this post, we’ll try it for ourselves!&lt;/p&gt;
+
+&lt;p&gt;Follow along in &lt;a href=&quot;https://colab.research.google.com/drive/1nyFixKKTC5LOAyFWm-RgpVdIMkY9f1Dc&quot;&gt;the companion notebook&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;image网&quot;&gt;Image网&lt;/h2&gt;
+
+&lt;p&gt;Read the literature on computer vision, and you’ll see that ImageNet has become THE way to show off your new algorithm. Which is great, but coming in at 1.3 million images, it’s a little tricky for the average person to play with. To get around this, some folks are turning to smaller subsets of ImageNet for early experimentation - if something works well in small scale tests, *then* we can try it in the big leagues. Leading this trend have been Jeremy Howard and the fastai team, who often use &lt;a href=&quot;https://github.com/fastai/imagenette&quot;&gt;ImageNette&lt;/a&gt; (10 easy classes from ImageNet), &lt;a href=&quot;https://github.com/fastai/imagenette#imagewoof&quot;&gt;ImageWoof&lt;/a&gt; (Some dog breeds from ImageNet) and most recently &lt;a href=&quot;https://github.com/fastai/imagenette#image%E7%BD%91&quot;&gt;Image网&lt;/a&gt; (‘ImageWang’, 网 being ‘net’ in Chinese).&lt;/p&gt;
+
+&lt;p&gt;Image网 contains some images from both ImageNette and ImageWoof, but with a twist: only 10% of the images are labeled to use for training. The remainder are in a folder, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;unsup&lt;/code&gt;, specifically for use in unsupervised learning. We’ll be using this dataset to try our hand at self-supervised learning, using the unlabeled images to train our network on a pretext task before trying classification.&lt;/p&gt;
+
+&lt;h2 id=&quot;defining-our-pretext-task&quot;&gt;Defining Our Pretext Task&lt;/h2&gt;
+
+&lt;p&gt;A pretext task should be one that forces the network to learn underlying patterns in the data. This is a new enough field that new ideas are being tried all the time, and I believe that a key skill in the future will be coming up with pretext tasks in different domains. For images, there are some options explained well in &lt;a href=&quot;https://www.fast.ai/2020/01/13/self_supervised/&quot;&gt;this fastai blog&lt;/a&gt;. Options include:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Colorization of greyscale images&lt;/li&gt;
+  &lt;li&gt;Classifying corrupted images&lt;/li&gt;
+  &lt;li&gt;Image In-painting (filling in ‘cutouts’ in the image)&lt;/li&gt;
+  &lt;li&gt;Solving jigsaws&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;For fun, I came up with a variant of the image in-painting task that combines it with colorization. Several sections of the input image are blurred and turned greyscale. The network tries to replace these regions with sensible values, with the goal being to have the output match the original image as closely as possible. One reason I like the idea of this as a pretext task is that we humans get something similar. Each time we move our eyes, things that were in our blurry, greyscale peripheral vision are brought into sharp focus in our central vision - another input for the part of our brain that’s been pretending they were full HD color the whole time :)&lt;/p&gt;
+
+&lt;p&gt;Here are some examples of the grey-blurred images and the desired outputs:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/02/screenshot-from-2020-02-22-16-29-29.png?w=746&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Input/Output pairs for our pretext task, using the RandomGreyBlur transform&lt;/p&gt;
+
+&lt;p&gt;We train our network on this task for 15 epochs, and then save its parameters for later use in the downstream task. See the notebook for implementation details.&lt;/p&gt;
+
+&lt;h2 id=&quot;downstream-task-image-classification&quot;&gt;Downstream Task: Image Classification&lt;/h2&gt;
+
+&lt;p&gt;Now comes the fun part: seeing if our pretext task is of any use! We’ll follow the structure of the &lt;a href=&quot;https://github.com/fastai/imagenette#image%E7%BD%91&quot;&gt;Image网 leaderboard here&lt;/a&gt;, looking at models for different image sizes trained with 5, 20, 80 or 200 epochs. The theory here is that we’d hope that out pretext task has given us a decent network, so we should get some results after 5 epochs, and keep getting better and better results with more training.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/02/screenshot-from-2020-02-22-21-35-51.png?w=814&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Results from early testing&lt;/p&gt;
+
+&lt;p&gt;The notebook goes through the process, training models on the labeled data provided with Image网 and scoring them on the validation set. This step can be quite tedious, but the 5-epoch models are enough to show that we’ve made an improvement on the baseline, which is pretty exciting. For training runs 20 epochs and greater, we still beat a baseline with no pre-training, but fall behind the current leaderboard entry based on simple inpainting. There is much tweaking to be done, and the runs take ~1 minute per epoch, so I’ll update this when I have more results.&lt;/p&gt;
+
+&lt;h2 id=&quot;where-next&quot;&gt;Where Next?&lt;/h2&gt;
+
+&lt;p&gt;Image网 is fairly new, and the leaderboard still needs filling in. Now is your chance for fame! Play with different pretext tasks (for eg, try just greyscale instead of blurred greyscale - it’s a single line of code to change), or tweak some of the parameters in the notebook and see if you can get a better score. And someone please do 256px?&lt;/p&gt;
+
+&lt;p&gt;Beyond this toy example, remember that unlabeled data can be a useful asset, especially if labeled data is sparse. If you’re ever facing a domain where a pretrained model is unavailable, self-supervised learning might come to your rescue.&lt;/p&gt;</content><author><name></name></author><summary type="html">Until fairly recently, deep learning models needed a LOT of data to get decent performance. Then came an innovation called transfer learning, which we’ve covered in some previous posts. We train a network once on a huge dataset (such as ImageNet, or the entire text of Wikipedia), and it learns all kinds of useful features. We can then retrain or ‘fine-tune’ this pretrained model on a new task (say, elephant vs zebra), and get incredible accuracy with fairly small training sets. But what do we do when there isn’t a pretrained model available?</summary></entry><entry><title type="html">Fastpages Notebook Blog Post</title><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/fastpages/jupyter/2020/02/20/test.html" rel="alternate" type="text/html" title="Fastpages Notebook Blog Post" /><published>2020-02-20T00:00:00-06:00</published><updated>2020-02-20T00:00:00-06:00</updated><id>https://johnowhitaker.github.io/datasciencecastnet_blog/fastpages/jupyter/2020/02/20/test</id><content type="html" xml:base="https://johnowhitaker.github.io/datasciencecastnet_blog/fastpages/jupyter/2020/02/20/test.html">&lt;!--
 #################################################
 ### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
 #################################################
@@ -657,95 +708,481 @@
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;/div&gt;
-&lt;/div&gt;</content><author><name></name></author><summary type="html"></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://johnowhitaker.github.io/datasciencecastnet_blog/images/chart-preview.png" /><media:content medium="image" url="https://johnowhitaker.github.io/datasciencecastnet_blog/images/chart-preview.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">ML and IR Tomography</title><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/05/17/ml-and-ir-tomography.html" rel="alternate" type="text/html" title="ML and IR Tomography" /><published>2019-05-17T00:00:00-05:00</published><updated>2019-05-17T00:00:00-05:00</updated><id>https://johnowhitaker.github.io/datasciencecastnet_blog/2019/05/17/ml-and-ir-tomography</id><content type="html" xml:base="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/05/17/ml-and-ir-tomography.html">&lt;p&gt;I studied Electrical and Computer Engineering at UCT, and the final year project was my chance to really dive deep into a topic. I chose IR tomography, and explored various questions around that topic. For today’s post, I’ll focus on one small aspect: the use of machine learning. This post will go through some background and then show a couple of ML models in use. For much more detail and my full thesis, see this &lt;a href=&quot;https://github.com/johnowhitaker/CIRTS&quot;&gt;GitHub repository.&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</content><author><name></name></author><summary type="html"></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="https://johnowhitaker.github.io/datasciencecastnet_blog/images/chart-preview.png" /><media:content medium="image" url="https://johnowhitaker.github.io/datasciencecastnet_blog/images/chart-preview.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Meta ‘Data Glimpse’ - Google Dataset Search</title><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/2020/02/05/meta-data-glimpse-google-dataset-search.html" rel="alternate" type="text/html" title="Meta 'Data Glimpse' - Google Dataset Search" /><published>2020-02-05T00:00:00-06:00</published><updated>2020-02-05T00:00:00-06:00</updated><id>https://johnowhitaker.github.io/datasciencecastnet_blog/2020/02/05/meta-data-glimpse-google-dataset-search</id><content type="html" xml:base="https://johnowhitaker.github.io/datasciencecastnet_blog/2020/02/05/meta-data-glimpse-google-dataset-search.html">&lt;p&gt;Christmas came in January this year, with Google’s release of ‘&lt;a href=&quot;https://datasetsearch.research.google.com/&quot;&gt;Dataset Search&lt;/a&gt;’. They’ve indexed millions of cool datasets and made it easy to search through them. This post isn’t about any specific dataset, but rather I just wanted to share this epic new resource with you.&lt;/p&gt;
 
-&lt;h2 id=&quot;background&quot;&gt;Background&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&quot;https://datasetsearch.research.google.com/&quot;&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/02/screenshot-from-2020-02-05-07-33-59.png?w=922&quot; alt=&quot;&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;This project arose because I wanted to do some experiments with Computed Tomography, but I didn’t know enough to see what would work and what wouldn’t. How many sensors does one need to achieve a particular goal for resolution or performance? What geometries work best? And what if we can’t keep everything nice and regular? &lt;/p&gt;
+&lt;p&gt;Google’s &lt;a href=&quot;https://datasetsearch.research.google.com/&quot;&gt;Dataset Search&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&quot;https://cdn.hackaday.io/images/3765251542371976038.png&quot;&gt;&lt;img src=&quot;https://cdn.hackaday.io/images/3765251542371976038.png&quot; alt=&quot;&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;I saw the news as it came out, which meant I had the pleasure of sharing it with my colleagues - all of whom got &lt;a href=&quot;https://xkcd.com/356/&quot;&gt;nerd sniped&lt;/a&gt; to some degree, likely resulting a much loss of revenue and a ton of fun had by all :) A few minutes after clicking the link I was clustering dolphin vocalizations and smiling to myself. If you’re ever looking for an experiment to write up, have a trawl through the datasets on there and pick one that hasn’t got much ML baggage attached - you’ll have a nice novel project to brag about.&lt;/p&gt;
 
-&lt;p&gt;I built some tools that let me simulate these kinds of arrangements, and did some early experiments on image reconstruction and on the use of machine learning (specifically neural networks) to make sense of readings. Even with a weird arrangement like the one on the right, I could make some sense of the data. For more information on the simulation side, see the report in the &lt;a href=&quot;https://github.com/johnowhitaker/CIRTS&quot;&gt;GitHub repository&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/02/screenshot-from-2020-01-24-13-09-14.png?w=441&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;I tested out these arrangements in the real world by building some fixed arrangements, and by using a 3D printed scanner to position an LED and a phototransistor (PT from now on) in different locations to slowly simulate having many detectors and emitters. Using light as opposed to X-rays means cheap emitters and detectors, and of course much less danger.&lt;/p&gt;
+&lt;p&gt;Clustering Dolphin noises&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/05/ring_of_8_kapton.jpeg&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;Say what you like about Google, there are people there doing so much to push research forward. Tools like Colab, Google Scholar, and now Dataset Search make it easy to do some pretty amazing research from anywhere. So go on - dive in :)&lt;/p&gt;</content><author><name></name></author><summary type="html">Christmas came in January this year, with Google’s release of ‘Dataset Search’. They’ve indexed millions of cool datasets and made it easy to search through them. This post isn’t about any specific dataset, but rather I just wanted to share this epic new resource with you.</summary></entry><entry><title type="html">Swoggle Part 2 - Building a Policy Network with PyTorch, dealing with Cheaty Agents and ‘Beating’ the Game</title><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/2020/01/24/swoggle-part-2-building-a-policy-network-with-pytorch-dealing-with-cheaty-agents-and-beating-the-game.html" rel="alternate" type="text/html" title="Swoggle Part 2 - Building a Policy Network with PyTorch, dealing with Cheaty Agents and 'Beating' the Game" /><published>2020-01-24T00:00:00-06:00</published><updated>2020-01-24T00:00:00-06:00</updated><id>https://johnowhitaker.github.io/datasciencecastnet_blog/2020/01/24/swoggle-part-2-building-a-policy-network-with-pytorch-dealing-with-cheaty-agents-and-beating-the-game</id><content type="html" xml:base="https://johnowhitaker.github.io/datasciencecastnet_blog/2020/01/24/swoggle-part-2-building-a-policy-network-with-pytorch-dealing-with-cheaty-agents-and-beating-the-game.html">&lt;p&gt;In &lt;a href=&quot;https://datasciencecastnet.home.blog/2020/01/20/swoggle-part-1-rl-environments-and-literate-programming-with-nbdev/&quot;&gt;part 1&lt;/a&gt;, we laid the groundwork for our Reinforcement Learning experiments by creating a simple game (Swoggle) that we’d be trying to teach out AI to play. We also created some simple Agents that followed hard-coded rules for play, to give our AI some opponents. In this post, we’ll get to the hard part - using RL to learn to play this game.&lt;/p&gt;
 
-&lt;p&gt;A ring of 8 LEDs and 8 PTs. Larger rings were also constructed, and the scanner could simulate arrangements of &amp;gt;1000 sensors and emitters.&lt;/p&gt;
+&lt;h2 id=&quot;the-task&quot;&gt;The Task&lt;/h2&gt;
 
-&lt;p&gt;By taking a set of readings, we can start to estimate how much light travels along different paths, and thus build up an image of whatever is being scanned. This works well with lots of readings from the scanner:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/01/rl.png?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-17-37.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;Reinforcement Learning (Artist’s Depiction)&lt;/p&gt;
 
-&lt;p&gt;A reconstructed image of some small nails. The scanner could resolve objects less than 1mm in size.&lt;/p&gt;
+&lt;p&gt;We want to create some sort of Agent capable of looking at the state of the game and deciding on the best move. It should be able to learn the rules and how to win by playing many games. Concretely, our agent should take in an array encoding the dice roll, the positions of the players and bases etc, and it should output one of 192 possible moves (64 squares, with two special kinds of move to give 64*3 possible actions). This agent shouldn’t just be a passive actor - it must also be able to learn from past games.&lt;/p&gt;
 
-&lt;p&gt;However, for arrangements with relatively few sensors (such as the static arrangement of 8 shown above), the reconstructed images are an apparently meaningless blur. The goal of this project was to use ML to make sense of these sets of readings, for example by identifying objects placed within the sensor ring or estimating their position.&lt;/p&gt;
+&lt;h2 id=&quot;policy-networks&quot;&gt;Policy Networks&lt;/h2&gt;
 
-&lt;h2 id=&quot;model-selection&quot;&gt;Model Selection&lt;/h2&gt;
+&lt;p&gt;In RL, a ‘policy’ is a map from game state to action. So when we talk about ‘Policy Learners’, ‘Policy Gradients’ or ‘Policy Networks’, we’re referring to something that is able to learn a good policy over time.&lt;/p&gt;
 
-&lt;p&gt;To answer the question “can machine learning be useful”, I needed to pick a good approach to take. Simply throwing the data at a decision tree and then noting the performance wouldn’t cut it - every choice needs to be justified. I wrote a notebook explaining the process &lt;a href=&quot;https://github.com/johnowhitaker/CIRTS/blob/master/Model%20Selection/Model%20Selection.ipynb&quot;&gt;here&lt;/a&gt;, but the basics are as follows:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/01/screenshot-from-2020-01-24-08-44-08.png?w=322&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The network we’ll be training&lt;/p&gt;
+
+&lt;p&gt;So how would we ‘learn’ a policy? If we had a vast archive of past games, we could treat this as a supervised learning task - feed in the game state, chosen action and eventual reward for each action in the game history to a neural network or other learning algorithm and hope that it learns what ‘good’ actions look like. Sadly, we don’t have such an archive! So, we take the following approach:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Start a game (an ‘episode’)&lt;/li&gt;
+  &lt;li&gt;Feed the game state through our policy network, which initially will give random output probabilities on each possible action&lt;/li&gt;
+  &lt;li&gt;Pick an action, favoring those for which the network output is high&lt;/li&gt;
+  &lt;li&gt;Keep making actions and feeding the resultant game state through the network to pick the next one, until the game ends.&lt;/li&gt;
+  &lt;li&gt;Calculate the reward. If we won, +100. If we lost, -20. Maybe an extra +0.1 for each valid move made, and some negative reward for each time we tried to break the rules.&lt;/li&gt;
+  &lt;li&gt;Update the network, so that it (hopefully) will better predict which moves will result in positive rewards.&lt;/li&gt;
+  &lt;li&gt;Start another game and repeat, for as long as you want.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://colab.research.google.com/drive/1dQLLTet5hrpQa22lk5z3fPx7SOrVZt-c&quot;&gt;Here’s a notebook where I implement this.&lt;/a&gt; The code borrows a little from &lt;a href=&quot;https://github.com/amoudgl/ai-bots/blob/master/cartpole/cartpole_naive_pg.py&quot;&gt;this implementation&lt;/a&gt; (with &lt;a href=&quot;https://amoudgl.github.io/blog/policy-gradient/&quot;&gt;associated blog post&lt;/a&gt; that explains it well). Some things I changed:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The initial example (like most resources you’ll find if you look around) chooses a problem with a single action - up or down, for example. I modified the network to take in 585 inputs (the Swoggle game state representation) and give out 192 outputs for the 62*3 possible actions an agent could take. I also added the final sigmoid layer since I’ll be interpreting the outputs as probabilities.&lt;/li&gt;
+  &lt;li&gt;Many implementations either take random actions (totally random) or look at the argmax of the network output. This isn’t great in our case - random actions are quite often invalid moves, but the top output of the network might also be invalid. Instead, &lt;strong&gt;we sample an action from the probability distribution represented by the network output&lt;/strong&gt;. This is like the approach Andrej Karpathy takes in his &lt;a href=&quot;http://karpathy.github.io/2016/05/31/rl/&quot;&gt;classic ‘Pong from Pixels’ post&lt;/a&gt; (which I highly recommend).&lt;/li&gt;
+  &lt;li&gt;This game is dice-based (which adds randomness) and not all actions are possible at all times, so I needed to add code to handle cases where the proposed move is invalid. In those cases, we add a small negative reward and try a different action.&lt;/li&gt;
+  &lt;li&gt;The implementation I started from used a parameter epsilon to shift from exploration (making random moves) to optimal play (picking the top network output). I removed this - by sampling from the prob. distribution, we keep our agent on it’s toes, and it always has a chance of acting randomly/unpredictably. This should make it more fun to play against, while still keeping it’s ability to play well most of the time.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This whole approach takes a little bit of time to internalize, and I’m not best placed to explain it well. Check out the aforementioned &lt;a href=&quot;http://karpathy.github.io/2016/05/31/rl/&quot;&gt;‘Pong from Pixels’ post&lt;/a&gt; and google for Policy Gradients to learn more.&lt;/p&gt;
+
+&lt;h2 id=&quot;success-or-cheaty-agents&quot;&gt;Success? Or Cheaty Agents?&lt;/h2&gt;
+
+&lt;p&gt;https://player.vimeo.com/video/355211341?autopause=0&amp;amp;autoplay=0&amp;amp;background=1&amp;amp;loop=1&amp;amp;muted=1&amp;amp;playsinline=1&amp;amp;transparent=1&lt;/p&gt;
+
+&lt;p&gt;OpenAI’s glitch-finding players (source: &lt;a href=&quot;https://openai.com/blog/emergent-tool-use/&quot;&gt;https://openai.com/blog/emergent-tool-use/&lt;/a&gt;)&lt;/p&gt;
+
+&lt;p&gt;Early on, I seemed to have hit upon an excellent strategy. Within a few games, my Agent was winning nearly 50% of games against the basic game AI (for a four player game, anything above 25% is great!). Digging a little deeper, I found my mistake. If the agent proposed a move that was invalid, it stayed where it was while the other agents moved around. This let it ‘camp’ on it’s base, or wait for a good dice roll before swoggling another base. I was able to get a similar win-rate with the following algorithm:&lt;/p&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;Define your problem (for example, classifying objects) and load the data&lt;/li&gt;
-  &lt;li&gt;Pick a type of model to try (for example, Logistic Regression)&lt;/li&gt;
-  &lt;li&gt;Train a model, and see how well it performs by splitting your data into training and testing sets. Use cross-validation to get more representative scores.&lt;/li&gt;
-  &lt;li&gt;Tune the model parameters. For example, try different values on ‘gamma’ (a regularisation parameter) for a Support Vector based classifier.&lt;/li&gt;
-  &lt;li&gt;Repeat for different types of model, and compare the scores&lt;/li&gt;
+  &lt;li&gt;Pick a random move&lt;/li&gt;
+  &lt;li&gt;If it’s valid, make the move. If not, stay put (not always a valid action but I gave the agent control of the board!)&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-28-05.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;That’s it - that’s the ‘CheatyAgent’ algorithm :) Fortunately, I’m not the first to have flaws in my game engine exploited by RL agents - check out the clip from OpenAI above!&lt;/p&gt;
 
-&lt;p&gt;Choosing the optimum number of hidden layers for a Multi-Layer Perceptron model (Neural Network)&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/01/screenshot-from-2020-01-24-07-33-56.png?w=644&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;For example, in the case of object classification, a neural network approach worked best (of the models tested):&lt;/p&gt;
+&lt;p&gt;Another bug: See where I wrote &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sr.dice()&lt;/code&gt; instead of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;dice_roll&lt;/code&gt;? This let the network re-roll if it proposed an invalid move, which could lead to artificially high performance.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-27-48.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;After a few more sneaky attempts by the AI to get around my rules, I finally got a setup that forced the AI to play by the rules, make valid moves and generally behave like a good and proper Swoggler should.&lt;/p&gt;
 
-&lt;p&gt;Model scores on a classification task&lt;/p&gt;
+&lt;h2 id=&quot;winning-for-real&quot;&gt;Winning for real&lt;/h2&gt;
 
-&lt;h2 id=&quot;object-classification&quot;&gt;Object Classification&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/01/screenshot-from-2020-01-23-17-57-47.png?w=626&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Using the ring with 8 LEDs and 8 PTs, I’d place an object randomly within the ring. The object (one of four used) and location (which of four ‘quadrants’ contained the object) were recorded along with a set of readings from the sensors. This data was stored in a csv file for later analysis.&lt;/p&gt;
+&lt;p&gt;Learning to win!!!&lt;/p&gt;
 
-&lt;p&gt;Using the model selected according to the method in the previous section, I was able to achieve an accuracy of 85% (multi-class classification) or 97% (binary classification with only two objects) using 750 samples for training. More training data resulted in better accuracy.&lt;/p&gt;
+&lt;p&gt;With the bugs ironed out, I could start tweaking rewards and training the network! It took a few goes, but I was able to find a setup that let the agent learn to play in a remarkably short time. After a few thousand games, we end up with a network that can win against three BasicAgents about 40-45% of the time! I used the trained network to pick moves in 4000 games, and it won 1856 of them, confirming it’s superiority to the BasicAgents, who hung their heads in shame.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-36-52.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;so-much-more-to-try&quot;&gt;So much more to try&lt;/h2&gt;
 
-&lt;p&gt;Model performance with more training samples for multi-class classification (orange)&lt;br /&gt;
-and binary classification (blue)&lt;/p&gt;
+&lt;p&gt;I’ve still got plenty to play around with. The network still tries to propose lots of invalid moves. Tweaking the rewards can change this (note the orange curve below that tracks ratio of valid:invalid moves) but at the cost of diverting the network from the true goal: winning games!&lt;/p&gt;
 
-&lt;p&gt;This was a fun result, and a good ML exercise. The data and a notebook showing the process of loading the data and training models can be found in the &lt;a href=&quot;https://github.com/johnowhitaker/CIRTS/tree/master/Model%20Selection&quot;&gt;‘Model Selection’ folder of the GitHub repository.&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/01/screenshot-from-2020-01-20-08-45-03.png?w=567&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;position-inference&quot;&gt;Position Inference&lt;/h2&gt;
+&lt;p&gt;Learning to make valid moves, but at the cost of winning.&lt;/p&gt;
 
-&lt;p&gt;Here, instead of trying to identify an object we attempt to predict it’s location. This requires knowing the position precisely when collecting training data - a problem I solved by using a 3D printer to move the object about under computer control.&lt;/p&gt;
+&lt;p&gt;That said, I’m happy enough with the current state of things to share this blog. &lt;a href=&quot;https://colab.research.google.com/drive/1dQLLTet5hrpQa22lk5z3fPx7SOrVZt-c&quot;&gt;Give it a go yourself!&lt;/a&gt; I’ll probably keep playing with this, but unless I find something super interesting, there probably won’t be a part 3 in this series. Thanks for coming along on my RL journey :)&lt;/p&gt;</content><author><name></name></author><summary type="html">In part 1, we laid the groundwork for our Reinforcement Learning experiments by creating a simple game (Swoggle) that we’d be trying to teach out AI to play. We also created some simple Agents that followed hard-coded rules for play, to give our AI some opponents. In this post, we’ll get to the hard part - using RL to learn to play this game.</summary></entry><entry><title type="html">Swoggle Part 1- RL Environments and Literate Programming with NBDev</title><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/2020/01/20/swoggle-part-1-rl-environments-and-literate-programming-with-nbdev.html" rel="alternate" type="text/html" title="Swoggle Part 1- RL Environments and Literate Programming with NBDev" /><published>2020-01-20T00:00:00-06:00</published><updated>2020-01-20T00:00:00-06:00</updated><id>https://johnowhitaker.github.io/datasciencecastnet_blog/2020/01/20/swoggle-part-1-rl-environments-and-literate-programming-with-nbdev</id><content type="html" xml:base="https://johnowhitaker.github.io/datasciencecastnet_blog/2020/01/20/swoggle-part-1-rl-environments-and-literate-programming-with-nbdev.html">&lt;p&gt;I’m going to be exploring the world of Reinforcement Learning. But there will be no actual RL in this post - that’s for part two. This post will do two things: describe the game we’ll be training our AI on, and show how I developed it using a tool called NBDev which is making me so happy at the moment. Let’s start with NBDev.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;https://cdn.hackaday.io/images/original/6463721543608288198.gif&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;what-is-nbdev&quot;&gt;What is NBDev?&lt;/h2&gt;
 
-&lt;p&gt;Gathering training data for position inference&lt;/p&gt;
+&lt;p&gt;Like many, I started my programming journey editing scripts in Notepad. Then I discovered the joy of IDEs with syntax highlighting, and life got better. I tried many editors over the years, benefiting from better debugging, code completion, stylish themes… But essentially, they all offer the same workflow: write code in an editor, run it and see what happens, make some changes, repeat. Then came Jupyter notebooks. Inline figures and explanations. Interactivity! Suddenly you don’t need to re-run everything just to try something new. You can work in stages, seeing the output of each stage before coding the next step. For some tasks, this is a major improvement. I found myself using them more and more, especially as I drifted into Data Science.&lt;/p&gt;
 
-&lt;p&gt;This results in a &lt;a href=&quot;https://github.com/johnowhitaker/CIRTS/blob/master/Pos_inf_r14/reads_500.csv&quot;&gt;dataset&lt;/a&gt; consisting of a set of readings followed by an X and Y position. The goal is to train a model to predict the position based on the readings. For the ring of 8, the model could predict the location with an error of ~10% of the radius of the ring - approximately 7mm. For the ring of 14 (pictured above, and the source of the linked dataset), I was able to get the RMSE down to 1.6mm (despite the ring being larger) using the tricks from the next section. You can read more about this on my &lt;a href=&quot;https://hackaday.io/project/162352-cirts-configurable-infra-red-tomography-systems&quot;&gt;hackaday.io&lt;/a&gt; page.&lt;/p&gt;
+&lt;p&gt;But what about when you want to deploy code? Until recently, my approach was to experiment in Jupyter, and then copy and paste code into a separate file or files which would become my library or application. This caused some friction - which is where &lt;a href=&quot;http://nbdev.fast.ai/&quot;&gt;NBDev&lt;/a&gt; comes in.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-51-05.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;~~~~~ &lt;strong&gt;“Create delightful python projects using Jupyter Notebooks&lt;/strong&gt;” - &lt;em&gt;NBDev website&lt;/em&gt; ~~~~~&lt;/p&gt;
 
-&lt;p&gt;Playing a game with the sensor ring.&lt;/p&gt;
+&lt;p&gt;With NBDev, everything happens in your notebooks. By adding special comments like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;#export&lt;/code&gt; to the start of a cell, you tell NBDev how to treat the code. This means you can write a function that will be exported, write some examples to illustrate how it works, plot the results and surround it with nice explanations in markdown. The exported code gets paces in a neat, well-ordered .py file that becomes your final product. The Notebook(s) becomes documentation, and the extra examples you added to show functionality work as tests (although you can also add more formal unit testing). An extra line of code uploads your library for others to install with pip. And if you’re following their guide, you get a documentation site and continuous integration that updates whenever you push your changes to GitHub.&lt;/p&gt;
 
-&lt;p&gt;The ring can take readings very fast, and being able to go from these readings to a fairly accurate position opens up some fun possibilities. I hooked it up to a game I had written. A player inserts a finger into the ring and moves it about to control a ‘spaceship’, which must dodge enemies to survive. It was a hit with my digs-mates at the time.&lt;/p&gt;
+&lt;p&gt;The upshot of all this is that you can effortlessly create good, clean code and documentation without having to switch between notebooks, editors and separate documentation. And the process you followed, the journey that lead to the final design choices, is no longer hidden. You can show how things developed, and include experiments that justify a particular choice. This is ‘literate programming’, and it feels like a major shift in the way I think about software development. I could wax lyrical about this for ages, but you should just go and read about it in &lt;a href=&quot;https://www.fast.ai/2019/12/02/nbdev/&quot;&gt;the launch post here&lt;/a&gt;.&lt;/p&gt;
 
-&lt;h2 id=&quot;using-simulation-to-boost-performance&quot;&gt;Using Simulation to boost performance&lt;/h2&gt;
+&lt;h2 id=&quot;what-on-earth-is-swoggle&quot;&gt;What on Earth is Swoggle?&lt;/h2&gt;
 
-&lt;p&gt;One downside of this approach is that it takes many training samples to get a model that performs adequately. It takes time to generate this training data, and in an industrial situation it might be impossible to simulate all possible positions in a reasonable time-frame. Since I already had a simulator I had coded, why not try to use it to generate some fake training data?&lt;/p&gt;
+&lt;p&gt;Christmas, 2019. Our wedding has brought a higher-than-normal influx of relatives to Cape Town, and when this extended family gets together, there are some things that are inevitable. One of these, it turns out, is the invention of new games to keep the cousins entertained. And thus, Swoggle was born :)&lt;/p&gt;
 
-&lt;p&gt;Using purely simulated data resulted in some spectacularly bad results, but if a model was ‘primed’ with even a small real-world training dataset (say, 50 samples) then adding simulated data could improve the model and make it more robust. I’ll let the results speak for themselves:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/01/screenshot-from-2020-01-20-05-45-04.png?w=546&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-55-41.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;A Swoggle game in progress - 2 players are left.&lt;/p&gt;
 
-&lt;p&gt;Model performance for position inference with and without simulated data for training&lt;/p&gt;
+&lt;p&gt;The game is played on an 8x8 board. There are usually 4 players, each with a base in one of the corners. Players can move (a dice determines how far), “spoggle” other players (capturing them and placing them in “swoggle spa” - none of this violent termnology) or ‘swoggle’ a base (gently retiring the bases owner from the game - no killing here). To make things interesting, there are four ‘drones’ that can be used as shields or to take an occupied base. Moving with a drone halves the distance you can travel, to make up for the advantages. A player with a drone can’t be spoggled by another player unless they too have a drone, or they ‘powerjump’ from their base (a half-distance move) onto the droned player. Maybe I’ll make a video one day and explain the rules properly :)&lt;/p&gt;
 
-&lt;p&gt;The simulator didn’t map to real life exactly, and no doubt could be improved to offer even more performance gains. But even as-is, it allows us to use far less training data to achieve the same result. Notice that a model trained on 150 samples does worse than one using only 50 samples but augmented with extra simulated data. A nifty result to keep in mind if you’re ever faced with a dataset that’s just a little too small!&lt;/p&gt;
+&lt;p&gt;So, that’s the game. Each round is fairly quick, so we usually play multiple rounds, awarding points for different achievements. Spoggling (capturing) a player: 1 point. Swoggling (taking out a base): 3 points. Last one standing: 5 points. The dice rolls add lots of randomness, but there is still plenty of room for tactics, sibling rivalry and comedic mistakes.&lt;/p&gt;
 
-&lt;h2 id=&quot;conclusions&quot;&gt;Conclusions&lt;/h2&gt;
+&lt;h2 id=&quot;game-representation&quot;&gt;Game Representation&lt;/h2&gt;
 
-&lt;p&gt;I had a ton of fun on this project, and this post only really scratches the surface. If you’re keen to learn more, do take a look at the &lt;a href=&quot;https://github.com/johnowhitaker/CIRTS/blob/master/EEE4022S_2018_FINAL_REPORT_WHTJON002_WHITAKER_J_WILKINSON.pdf&quot;&gt;full report(PDF)&lt;/a&gt; and &lt;a href=&quot;https://hackaday.io/project/162352-cirts-configurable-infra-red-tomography-systems&quot;&gt;hackaday project&lt;/a&gt;. This is a great example of machine learning being used to get meaningful outputs from a set of noisy, complicated data. And it shows the potential for using simulation of complex processes to augment training data for better model performance - a very cool result.&lt;/p&gt;
+&lt;p&gt;If we’re going to teach a computer to play this, we need a way to represent the game state, check if moves are valid, keep track of who’s in the swoggle spa and which bases are still standing, etc. I settled on something like this:&lt;/p&gt;
 
-&lt;p&gt;I’m thinking about moving this website in a different direction as I start on a new project - stay tuned for news!&lt;/p&gt;</content><author><name></name></author><summary type="html">I studied Electrical and Computer Engineering at UCT, and the final year project was my chance to really dive deep into a topic. I chose IR tomography, and explored various questions around that topic. For today’s post, I’ll focus on one small aspect: the use of machine learning. This post will go through some background and then show a couple of ML models in use. For much more detail and my full thesis, see this GitHub repository.</summary></entry></feed>
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/01/screenshot-from-2020-01-20-05-57-13.png?w=332&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Game state representation&lt;/p&gt;
+
+&lt;p&gt;There is a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cell&lt;/code&gt; in each x, y location, with attributes for player, drone and base. These cells are grouped in a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Board&lt;/code&gt;, which represents the game grid and tracks the spa. The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Board&lt;/code&gt; class also contains some useful methods like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;is_valid_move()&lt;/code&gt; and ways to move a particular player around. At the highest level, I have a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Swoggle&lt;/code&gt; class that wraps a board, handles setting up the initial layout, provides a few extra convenience functions and can be used to run a game manually or with some combination of agents (which we’ll cover in the next section). Since I’m working in NBDev, I have some docs with almost no effort, so check out &lt;a href=&quot;https://johnowhitaker.github.io/swoggle/&quot;&gt;https://johnowhitaker.github.io/swoggle/&lt;/a&gt; for details on this implementation. Here’s what the documentation system turned my notebooks into:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/01/screenshot-from-2020-01-20-05-34-12-1.png?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Part of the generated documentation&lt;/p&gt;
+
+&lt;p&gt;The ability to write code and comments in a notebook, and have that turn into a swanky docs page, is borderline magical. Mine is a little messy since this is a quick hobby project. To see what this looks like in a real project, check out the &lt;a href=&quot;https://dev.fast.ai/&quot;&gt;docs for NBDev itself&lt;/a&gt; or &lt;a href=&quot;https://dev.fast.ai/&quot;&gt;Fastai v2&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;creating-agents&quot;&gt;Creating Agents&lt;/h2&gt;
+
+&lt;p&gt;Since the end goal is to use this for reinforcement learning, it would be nice to have an easy way to add ‘Agents’ - code that defines how a player in the game will make a move in a given situation. It would also be useful to have a few non-RL agents to test things out and, later, to act as opponents for my fancier bots. I implemented two types of agent:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;RandomAgent&lt;/code&gt; Simply picks a random but valid move by trial and error, and makes that move.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;BasicAgent&lt;/code&gt; Adds a few simple heuristics. If it can take a base, it does so. If it can spoggle a player, it does so. If neither of these options are possible, it moves randomly.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;You can see the agent code &lt;a href=&quot;https://github.com/johnowhitaker/swoggle/blob/master/01_ai.ipynb&quot;&gt;here&lt;/a&gt;. The notebook also defines a few other useful functions, such as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;win_rates()&lt;/code&gt; to pit different agents against each-other and see how they do. This is fun to play with - after a few experiments it’s obvious that the board layout and order of players matters a lot. A &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;BasicAgent&lt;/code&gt; going last will win ~62% of games against three &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;RandomAgents&lt;/code&gt; - not unexpected. But of the three &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;RandomAgents&lt;/code&gt;, the one opposite the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;BasicAgent&lt;/code&gt; (and thus furthest from it) will win the majority of the remaining games.&lt;/p&gt;
+
+&lt;h2 id=&quot;next-step-reinforcement-learning&quot;&gt;Next Step: Reinforcement Learning!&lt;/h2&gt;
+
+&lt;p&gt;This was a fun little holiday coding exercise. I’m definitely an NBDev convert - I feel so much more productive using this compared to any other development approach I’ve tried. Thank you Jeremy, Sylvain and co for this excellent tool!&lt;/p&gt;
+
+&lt;p&gt;Now, the main point of this wasn’t just to get the game working - it was to use it for something interesting. And that, I hope, is coming soon in Part 2. As I type this, a neural network is slowly but surely learning to follow the rules and figuring out how to beat those sneaky &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;RandomAgents&lt;/code&gt;. Wish it luck, stay tuned, and, if you’re *really* bored, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;pip install swoggle&lt;/code&gt; and watch some &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;BasicAgents&lt;/code&gt; battle it out :)&lt;/p&gt;</content><author><name></name></author><summary type="html">I’m going to be exploring the world of Reinforcement Learning. But there will be no actual RL in this post - that’s for part two. This post will do two things: describe the game we’ll be training our AI on, and show how I developed it using a tool called NBDev which is making me so happy at the moment. Let’s start with NBDev.</summary></entry><entry><title type="html">Behind the scenes of a Zindi Contest</title><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/2020/01/16/behind-the-scenes-of-a-zindi-contest.html" rel="alternate" type="text/html" title="Behind the scenes of a Zindi Contest" /><published>2020-01-16T00:00:00-06:00</published><updated>2020-01-16T00:00:00-06:00</updated><id>https://johnowhitaker.github.io/datasciencecastnet_blog/2020/01/16/behind-the-scenes-of-a-zindi-contest</id><content type="html" xml:base="https://johnowhitaker.github.io/datasciencecastnet_blog/2020/01/16/behind-the-scenes-of-a-zindi-contest.html">&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/01/barbet1_sonogram.jpg?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;User comments&lt;/p&gt;
+
+&lt;p&gt;Ever wondered what goes into launching a data science competition? If so, this post is for you. I spent the last few days working on the Fowl Escapades: Southern African Bird Call Audio Identification Challenge on Zindi, and thought it would be fun to take you behind the scenes a little to show how it all came together.&lt;/p&gt;
+
+&lt;h2 id=&quot;step-1-inspiration&quot;&gt;Step 1: Inspiration&lt;/h2&gt;
+
+&lt;p&gt;Many competitions spring from an existing problem in need of a solution. For example, you may want a way to predict when your delivery will arrive based on weather, traffic conditions and the route your driver will take. In cases like this, an organization will reach out to Zindi with this problem statement, and move to stage 2 to see if it’s a viable competition idea. But this isn’t the only way competitions are born!&lt;/p&gt;
+
+&lt;p&gt;Sometimes, we find a cool dataset that naturally lends itself to answering an interesting problem. Sometimes we start with an interesting problem, and go looking for data that could help find answers. And occasionally, we start with nothing but a passing question at the end of a meeting: ‘does anyone have any other competition ideas?’. This was the case here.&lt;/p&gt;
+
+&lt;p&gt;I had been wanting to try my hand at something involving audio data. Since I happen to be an avid birder, I thought automatic birdsong identification would be an interesting topic. For this to work, we’d need bird calls - lot’s of them. Fortunately, after a bit of searching I found the star of this competition: &lt;a href=&quot;https://www.xeno-canto.org/&quot;&gt;https://www.xeno-canto.org/&lt;/a&gt;. Hundreds of thousands of calls from all over the world! A competition idea was born.&lt;/p&gt;
+
+&lt;h2 id=&quot;step-2-show-me-the-data&quot;&gt;Step 2: Show me the data&lt;/h2&gt;
+
+&lt;p&gt;To run a competition, you need some data (unless you’re going to ask the participants to find it for themselves!). This must:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Be shareable. Anything confidential needs to be masked or removed, and you either need to own the data or have permission to use it. For the birdsong challenge, we used data that had CC licences but we still made sure to get permission from xeno-canto and check that we’re following all the licence terms (such as attribution and non-modification).&lt;/li&gt;
+  &lt;li&gt;Be readable. This means no proprietary formats, variable definitions, sensible column names, and ideally a guide for reading in the data.&lt;/li&gt;
+  &lt;li&gt;Be manageable. Some datasets are HUGE! It’s possible to organize contests around big datasets, but it’s worth thinking about how you expect participants to interact with the data. Remember - not everyone has fast internet or free storage.&lt;/li&gt;
+  &lt;li&gt;Be useful. This isn’t always easy to judge, which is why doing data exploration and building a baseline model early on is important. But ideally, the data has some predictive power for the thing you’re trying to model!&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/01/screenshot-from-2020-01-15-14-49-59.png?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Visualizing birdsongs&lt;/p&gt;
+
+&lt;p&gt;By the time a dataset is released as part of a competition, it’s usually been through several stages of preparation. Let’s use the birdsong example and look at a few of there steps.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Collection&lt;/strong&gt;: For an organization, this would be an ongoing process. In our example case, this meant scraping the website for files that met our criteria (Southern African birds) and then downloading tens of thousands of mp3 files.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Cleaning:&lt;/strong&gt; A catch-all term for getting the data into a more usable form. This could be removing unnecessary data, getting rid of corrupted files, combining data from different sources…&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Splitting and Masking&lt;/strong&gt;: We picked the top 40 species with the most example calls, and then split the files for each species into train and test sets, with 33% of the data kept for the test set. Since the file names often showed the bird name, we used &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;''.join(random.choices(string.ascii_uppercase + string.digits, k=6))&lt;/code&gt; to generate random IDs. However you approach things, you’ll need to make sure that the answers aren’t deducible from the way you organize things (no sorting by bird species for the test set!)&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Checking&lt;/strong&gt; &lt;strong&gt;(and re-checking, and re-checking):&lt;/strong&gt; Making sure everything is in order before launch is vital - nothing is worse than trying to fix a problem with the data after people have started working on your competition! In the checking process I discovered that some mp3s had failed to download properly, and others were actually .wav files with .mp3 as the name. Luckily, I noticed this in time and could code up a fix before we went live.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Many of these steps are the same when approaching a data science project for your own work. It’s still important to clean and check the data before launching into the modelling process, and masking is useful if you’ll need to share results or experiments without necessarily sharing all your secret info.&lt;/p&gt;
+
+&lt;h2 id=&quot;step-3-getting-ready-for-launch&quot;&gt;Step 3: Getting ready for launch&lt;/h2&gt;
+
+&lt;p&gt;Aside from getting the data ready, there are all sorts of extra little steps required to arrive at something you’re happy to share with the world. An incomplete list of TODOs for our latest launch:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Decide on a scoring metric. This will be informed by the type of problem you’re giving to participants. In this case, we were torn between accuracy and log loss, and ended up going with the latter. For other cases (eg imbalanced data), there are a host of metrics. Here’s a guide: https://machinelearningmastery.com/tour-of-evaluation-metrics-for-imbalanced-classification/&lt;/li&gt;
+  &lt;li&gt;Put together an introduction and data description. What problem are we solving? What does the solution need to do? What does the training data look like? This will likely involve making some visualizations, doing a bit of research, finding some cool images to go with your topic…&lt;/li&gt;
+  &lt;li&gt;Social media. This isn’t part of my job, but I gather that there is all sorts of planning for how to let people know about the cool new thing we’re putting out into the world :)&lt;/li&gt;
+  &lt;li&gt;Tutorials. Not essential, but I feel that giving participants a way to get started lowers the barriers to entry and helps to get more novices into the field. Which is why, as is becoming my habit, I put together a starter notebook to share as soon as the contest launches.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/01/screenshot-from-2020-01-16-14-08-14.png?w=879&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;A confusion matrix - one way to quickly see how well a classification algorithm is working. (from the starter notebook)&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Baseline/benchmark. This is something I like to do as early as possible in the process. I’ll grab the data, do the minimal cleaning required, run it through some of my favorite models and see how things go. This is nice in that it gives us an idea of what a ‘good’ score is, and whether the challenge is even doable. When a client is involved, this is especially useful for convincing them that a competition is a good idea - if I can get something that’s almost good enough, imagine what hundreds of people working for prize money will come up with! If there’s interest in my approach for a quick baseline, let me know and I may do a post about it.&lt;/li&gt;
+  &lt;li&gt;Names, cover images, did you check the data???, looking at cool birds, teaser posts on twitter, frantic scrambles to upload files on bad internet, overlaying a sonogram on one of my bird photos… All sorts of fun :)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2020/01/screenshot-from-2020-01-16-11-26-21-1.png?w=635&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Fine-tuning the benchmark model&lt;/p&gt;
+
+&lt;p&gt;I could add lots more. I’ve worked on quite a few contests with the Zindi team, but usually I’m just part of the data cleaning and modelling steps. I’ve had such a ball moving this one from start to finish alongside the rest of the team, and I really appreciate all the hard work they do to keep us DS peeps entertained!&lt;/p&gt;
+
+&lt;h2 id=&quot;try-it-yourself&quot;&gt;Try it yourself!&lt;/h2&gt;
+
+&lt;p&gt;I hope this has been interesting. As I said, this whole process has been a blast. So if you’re sitting on some data, or know of a cool dataset, why not reach out and host a competition? You might even convince them to let you name it something almost as fun as ‘Fowl Escapades’. :)&lt;/p&gt;</content><author><name></name></author><summary type="html"></summary></entry><entry><title type="html">Snapshot Serengeti - Working with Large Image Datasets</title><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/11/29/snapshot-serengeti-working-with-large-image-datasets.html" rel="alternate" type="text/html" title="Snapshot Serengeti - Working with Large Image Datasets" /><published>2019-11-29T00:00:00-06:00</published><updated>2019-11-29T00:00:00-06:00</updated><id>https://johnowhitaker.github.io/datasciencecastnet_blog/2019/11/29/snapshot-serengeti-working-with-large-image-datasets</id><content type="html" xml:base="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/11/29/snapshot-serengeti-working-with-large-image-datasets.html">&lt;p&gt;Driven Data launched a &lt;a href=&quot;https://www.drivendata.org/competitions/59/camera-trap-serengeti/leaderboard/&quot;&gt;competition around the Snapshot Serengeti database&lt;/a&gt; - something I’ve been intending to investigate for a while. Although the competition is called “Hakuna Ma-data” (which where I come from means something like “there is no data”), this is actually the largest dataset I’ve worked with to date, with ~5TB of high-res images. I suspect that that’s putting people off (there are only a few names on the leaderboard), so I’m writing this post to show how I did an entry, run through some tricks for dealing with big datasets, give you a notebook to get started quickly and try out a fun new tool I’ve found for monitoring long-running experiments using &lt;a href=&quot;http://neptune.ml/&quot;&gt;neptune.ml&lt;/a&gt;.Let’s dive in.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-challenge&quot;&gt;The Challenge&lt;/h2&gt;
+
+&lt;p&gt;The goal of the competition is to create a model that can correctly label the animal(s) in an image sequence from one of many camera traps scattered around the Serengeti plains, which are teeming with wildlife. You can read more about the data and the history of the project on their &lt;a href=&quot;https://www.zooniverse.org/projects/zooniverse/snapshot-serengeti&quot;&gt;website&lt;/a&gt;. There can be more than one type of animal in an image, making this a multi-label classification problem.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-29-09-59-08.png?w=797&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Some not-so-clear images from the dataset&lt;/p&gt;
+
+&lt;p&gt;The drivendata competition is interesting in that you aren’t submitting predictions. Instead, you have to submit everything needed to perform inference in their hidden test environment. In other words, you have to submit a trained model and the code to make it go. This is a good way to practice model deployment.&lt;/p&gt;
+
+&lt;h2 id=&quot;modelling&quot;&gt;Modelling&lt;/h2&gt;
+
+&lt;p&gt;The approach I took to modelling is very similar to the other fastai projects I’ve done recently. Get a pre-trained resnet50 model, tune the head, unfreeze, fine-tune, and optionally re-train with larger images right at the end. It’s a multi-label classification problem, so I followed the fastai planet labs example for labeling the data. You can see the details of the code in the notebook (coming in the next section) but I’m not going to go over it all again here. The modelling in this case is less interesting than the extra things needed to work at this scale.&lt;/p&gt;
+
+&lt;h2 id=&quot;starter-notebook&quot;&gt;Starter Notebook&lt;/h2&gt;
+
+&lt;p&gt;I’m a big fan of making data science and ML more accessible. For anyone intimidated by the scale of this contest, and not too keen on following the path I took in the rest of this post, I’ve created a &lt;a href=&quot;https://colab.research.google.com/drive/1pOjQXXCCa6fTzw4w5V3DI8ey28ul_9yz&quot;&gt;Google Colab Notebook to get you started&lt;/a&gt;. It shows how to get some of the data, label it, create and train a model, score your model like they do in the competition and create a submission. This should help you get started, and will give a good score without modification. The notebook also has some obvious improvements waiting to be made - using more data, training the model further…..&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-29-10-45-06.png?w=696&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Training a quick model in the starter notebook&lt;/p&gt;
+
+&lt;p&gt;The code in the notebook is essentially what I used for my first submission, which is currently the top out of the… 2 total submissions on the leaderboard. As much as I like looking good, I’ll be much happier if this helps a bunch of people jump ahead of that score! Please let me know if you use this, so that I don’t feel that this wasn’t useful to anyone?&lt;/p&gt;
+
+&lt;h2 id=&quot;moar-data---colab-wont-cut-it&quot;&gt;Moar Data - Colab won’t cut it&lt;/h2&gt;
+
+&lt;p&gt;OK, so there definitely isn’t 5TB of storage on Google Colab, and even though we can get a decent score with a fraction of the data, what if we want to go further? My approach was as follows:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Create a Google Cloud Compute instance with all the fastai libraries etc installed, by following &lt;a href=&quot;https://course.fast.ai/start_gcp.html&quot;&gt;this tutorial&lt;/a&gt;. The resultant machine has 50GB memory, a P100 GPU and 200GB disk space by default. It comes with most of what’s required for deep learning work, and has the added bonus of having jupyter + all the fastai course notebooks ready to get things going quickly. I made sure not to make the instance preemptible - we want to have long-running tasks going, so having it shut down unexpectedly would be sad.&lt;/li&gt;
+  &lt;li&gt;Add an extra disk to the compute instance. &lt;a href=&quot;https://devopscube.com/mount-extra-disks-on-google-cloud/&quot;&gt;This tutorial&lt;/a&gt; gave me the main steps. It was quite surreal typing in 6000 GB for the size! I mounted the dist at &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/ss_ims&lt;/code&gt; - that will be my base folder going forward.&lt;/li&gt;
+  &lt;li&gt;Download a season of data, and then begin experimenting while more downloads. No point having that pricey GPU sitting idle!&lt;/li&gt;
+  &lt;li&gt;Train the full model overnight, tracking progress.&lt;/li&gt;
+  &lt;li&gt;Submit!&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-22-18-01-13.png?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Mounting a scarily large disk!&lt;/p&gt;
+
+&lt;p&gt;I won’t go into the cloud setup here, but in the next section let’s look at how you can track the status of a long-running experiment.&lt;/p&gt;
+
+&lt;h2 id=&quot;neptune-ml---tracking-progress&quot;&gt;Neptune ML - Tracking progress&lt;/h2&gt;
+
+&lt;p&gt;I’d set the experiments running on my cloud machine, but due to lack of electricity and occasional loss of connection I couldn’t simply leave my laptop running and connected to the VM to show how the model training was progressing. With so many images, each epoch of training took ages, and I had a couple of models crash early in the process. This was frustrating - I would try to leave it going overnight but if the model failed in the evening it meant that I had wasted some of my few remaining cloud credits on a machine sitting idle. Luckily, I had recently seen how to monitor progress remotely, meaning I could check my phone while I was out and see if the model was working and how good it was getting.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-25-09-19-18.png?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Tracking loss and metrics over time with neptune.ml&lt;/p&gt;
+
+&lt;p&gt;The process is pretty simple, and well documented &lt;a href=&quot;https://medium.com/neptune-ml/track-and-organize-fastai-experimentation-process-in-neptune-78ec8d6b18b0&quot;&gt;here&lt;/a&gt;. You sign up for an account, get an API key and add a callback to your model. This will then let you log in to neptune.ml from any device, and track your loss, any metrics you’ve added and the output of the code you’re running. I could give more reasons why this is useful, but honestly the main motivation is that it’s cool! I had great fun surreptitiously checking my loss from my phone every half hour while I was out and about.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-29-11-54-25.png?w=796&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Tracking model training with neptune&lt;/p&gt;
+
+&lt;h2 id=&quot;where-next&quot;&gt;Where next?&lt;/h2&gt;
+
+&lt;p&gt;I’m out of cloud credits, and as an ‘independent scientist’ my funding situation doesn’t really justify spending more money on cloud compute to try a better entry. If you’d like to sponsor some more work, I may have another go with a properly trained model. I did manage to experiment on using more than the first image in a sequence, and using Jeremy Howard’s trick of doing some final fine-tuning on larger images - would be interesting to see how much these improve the score in this contest.&lt;/p&gt;
+
+&lt;p&gt;I hope this post encourages more of you to try this contest out! As the starter notebook shows, you can get close to the top (beating the benchmark) with a tiny fraction of the data and some simple tricks. &lt;a href=&quot;https://colab.research.google.com/drive/1pOjQXXCCa6fTzw4w5V3DI8ey28ul_9yz&quot;&gt;Give it a try&lt;/a&gt; and report how you do in the comments!&lt;/p&gt;</content><author><name></name></author><summary type="html">Driven Data launched a competition around the Snapshot Serengeti database - something I’ve been intending to investigate for a while. Although the competition is called “Hakuna Ma-data” (which where I come from means something like “there is no data”), this is actually the largest dataset I’ve worked with to date, with ~5TB of high-res images. I suspect that that’s putting people off (there are only a few names on the leaderboard), so I’m writing this post to show how I did an entry, run through some tricks for dealing with big datasets, give you a notebook to get started quickly and try out a fun new tool I’ve found for monitoring long-running experiments using neptune.ml.Let’s dive in.</summary></entry><entry><title type="html">Deep Learning + Remote Sensing - Using NNs to turn imagery into meaningful features</title><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/11/12/deep-learning-remote-sensing-using-nns-to-turn-imagery-into-meaningful-features.html" rel="alternate" type="text/html" title="Deep Learning + Remote Sensing - Using NNs to turn imagery into meaningful features" /><published>2019-11-12T00:00:00-06:00</published><updated>2019-11-12T00:00:00-06:00</updated><id>https://johnowhitaker.github.io/datasciencecastnet_blog/2019/11/12/deep-learning-remote-sensing-using-nns-to-turn-imagery-into-meaningful-features</id><content type="html" xml:base="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/11/12/deep-learning-remote-sensing-using-nns-to-turn-imagery-into-meaningful-features.html">&lt;p&gt;Every now and again, the World Bank conducts something called a Living Standards Measurement Study (LSMS) survey in different countries, with the purpose being to learn about people, their incomes and expenses, how they’re doing economically and so on. These surveys provide very useful info to various stakeholders, but they’re expensive to conduct. What if we could estimate some of the parameters they measure from satellite imagery instead? That was the goal of some researchers at Stanford back in 2016, who came up with a way to do just that and wrote it up into &lt;a href=&quot;https://science.sciencemag.org/content/353/6301/790&quot;&gt;this wonderful paper in Science&lt;/a&gt;. In this blog post, we’ll explore their approach, replicate the paper (using some more modern tools) and try a few experiments of our own.&lt;/p&gt;
+
+&lt;h2 id=&quot;predicting-poverty-where-do-you-start&quot;&gt;Predicting Poverty: Where do you start?&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-18-20-29-49.png?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Nighttime lights&lt;/p&gt;
+
+&lt;p&gt;How would you use remote sensing to estimate economic activity for a given location? One popular method is to look at how much light is being emitted there at night - as my 3 regular readers may remember, there is a great nighttime lights dataset produced by NOAA that was featured in &lt;a href=&quot;https://datasciencecastnet.home.blog/2019/07/08/data-glimpse-nighttime-lights/&quot;&gt;a data glimpse&lt;/a&gt; a while back. It turns out that the amount of light sent out does correlate with metrics such as assets and consumption, and this data has been used in the past to model things like economic activity (see &lt;a href=&quot;https://datasciencecastnet.home.blog/2019/06/28/data-glimpse-visualizing-economic-activity-with-the-g-econ-project-data/&quot;&gt;another data glimpse&lt;/a&gt; post for more that). One problem with this approach: the low end of the scale gets tricky - nighttime lights don’t vary much below a certain level of expenditure.&lt;/p&gt;
+
+&lt;p&gt;Looking at daytime imagery, we see many things that might help tell us about the wealth in a place: type of roofing material on the houses, the number of roads, how built-up an area is…. But there’s a problem here too: these features are quite complicated, and training data is sparse. We could try to train a deep learning model to take in imagery and spit out income level, but the LSMS surveys typically only cover a few hundred locations - not a very large dataset, in other words.&lt;/p&gt;
+
+&lt;h2 id=&quot;jean-et-als-sneaky-trick&quot;&gt;Jean et al’s sneaky trick&lt;/h2&gt;
+
+&lt;p&gt;The key insight in the paper is that we can train a CNN to predict nighttime lights (for which we have plentiful data) from satellite imagery, and in the process it will learn features that are important for predicting lights - and that these features will likely also be good for predicting our target variable as well! This multi-step transfer learning approach did very well, and is a technique that’s definitely worth keeping in mind when you’re facing a problem without much data.&lt;/p&gt;
+
+&lt;p&gt;But wait, you say. How is this better than just using nightlights? From &lt;a href=&quot;https://science.sciencemag.org/content/353/6301/790&quot;&gt;the article: “&lt;em&gt;How might a model partially trained on an imperfect proxy for economic well-being—in this case, the nightlights used in the second training step above—improve upon the direct use of this proxy as an estimator of well-being? Although nightlights display little variation at lower expenditure levels (Fig. 1, C to F), the survey data indicate that other features visible in daytime satellite imagery, such as roofing material and distance to urban areas, vary roughly linearly with expenditure (fig. S2) and thus better capture variation among poorer clusters. Because both nightlights and these features show variation at higher income levels, training on nightlights can help the CNN learn to extract features like these that more capably capture variation across the entire consumption distribution.&lt;/em&gt;&lt;/a&gt;” (Jean et al, 2016). So the model learns expenditure-dependent features that are useful even at the low end, overcoming the issue faced by approaches that use nightlights alone. Too clever!&lt;/p&gt;
+
+&lt;h2 id=&quot;can-we-replicate-it&quot;&gt;Can we replicate it?&lt;/h2&gt;
+
+&lt;p&gt;The authors of the paper shared their code publicly but… it’s a little hard to follow, and is scattered across multiple R and Python files. Luckily, someone has already done some of the hard work for us, and has shared a pytorch version in &lt;a href=&quot;https://github.com/jmather625/predicting-poverty-replication&quot;&gt;this GitHub repository&lt;/a&gt;. If you’d like to replicate the paper exactly, that’s a good place to start. I’ve gone a step further and consolidated everything into a single &lt;a href=&quot;https://colab.research.google.com/drive/13b6HO7nhioYFRNTOjt47sAE51HWJ32iC&quot;&gt;Google Colab notebook&lt;/a&gt; that borrows code from the above and builds on it. The rest of this post will explain the different sections of the notebook, and why I depart from the exact method used in the paper. Spoiler: we get a slightly better result with much fewer images downloaded.&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-the-data&quot;&gt;Getting the data&lt;/h2&gt;
+
+&lt;p&gt;The data comes from the &lt;a href=&quot;https://microdata.worldbank.org/index.php/catalog/lsms https://microdata.worldbank.org/index.php/catalog/2936/get-microdata&quot;&gt;Fourth Integrated Household Survey 2016-2017&lt;/a&gt;. We’ll focus on Malawi for this post. &lt;a href=&quot;https://colab.research.google.com/drive/13b6HO7nhioYFRNTOjt47sAE51HWJ32iC&quot;&gt;The notebook&lt;/a&gt; shows how to read in several of the CSV files downloaded from the website, and combine them into ‘clusters’ - see below. For each cluster location, we have a unique ID (HHID), a location (lat and lon), an urban/rural indicator, a weighting for statisticians, and the important variable: consumption (cons). This last one is the thing we’ll be trying to predict.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-09-18-48-17.png?w=685&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The relevant info from the survey data&lt;/p&gt;
+
+&lt;p&gt;One snag: the lat and lon columns are tricksy! They’ve been shifted to protect anonymity, so we’ll have to consider a 10km buffer around the given location and hope the true location is close enough that we get useful info.&lt;/p&gt;
+
+&lt;h2 id=&quot;adding-nighttime-lights&quot;&gt;Adding nighttime lights&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-09-18-57-07.png?w=720&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Getting the nightlights value for a given location&lt;/p&gt;
+
+&lt;p&gt;To get the nightlight data, we’ll use the python library to run Google Earth Engine queries. You’ll need a GEE account, and &lt;strong&gt;&lt;a href=&quot;https://colab.research.google.com/drive/13b6HO7nhioYFRNTOjt47sAE51HWJ32iC&quot;&gt;the notebook&lt;/a&gt;&lt;/strong&gt; shows how to authenticate and get the required data. We can get the nightlights for each cluster location (getting the mean over an 8km buffer around the lat/lon points) and add this number as a column. To give us a target to aim at, we’ll compare any future models to a simple model based on these nightlight values only.&lt;/p&gt;
+
+&lt;h2 id=&quot;downloading-static-maps-images&quot;&gt;Downloading static maps images&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-09-19-31-36.png?w=592&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Getting imagery for a given location&lt;/p&gt;
+
+&lt;p&gt;The next step takes a while: we need to download images for the locations. BUT: we don’t just want one for each cluster location - instead, we want a selection from the surrounding area. Each of these will have it’s own nightlights value, so that we get a larger training set to build our model on. Later, we’ll extract features for each image in a cluster and combine them. Details are in &lt;a href=&quot;https://colab.research.google.com/drive/13b6HO7nhioYFRNTOjt47sAE51HWJ32iC&quot;&gt;the notebook&lt;/a&gt;. The code takes several hours to run, but at the end of it you’ll have thousands of images ready to use.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-10-06-57-42.png?w=989&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Tracking requests/sec on in my Google Cloud Console&lt;/p&gt;
+
+&lt;p&gt;You’ll notice that I only generate 20 locations around each cluster. The original paper uses 100. Reasons: 1) I’m impatient. 2) There is a rate limit of 25k images/day, and I didn’t want to wait (see #1), 3) The images are 400 x 400, but are then shrunk to train the model. I figured I could split the 400px image into 4 (or 9) smaller images that overlap slightly, and thus get more training data for free. This is suggested as a “TO TRY” in the notebook, but hint: it works. If you really wanted to get a better score, trying this or adding more imagery is an easy way to do so.&lt;/p&gt;
+
+&lt;h2 id=&quot;training-a-model&quot;&gt;Training a model&lt;/h2&gt;
+
+&lt;p&gt;I’ll be using fastai to simplify the model creation and training stages. before we can create a model, we need an appropriate databunch to hold the training data. An optional addition at this stage is to add image transforms to augment our training data - which I do with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tfms = get_transforms(flip_vert=True, max_lighting=0.1, max_zoom=1.05, max_warp=0.)&lt;/code&gt; as suggested in the &lt;a href=&quot;https://nbviewer.jupyter.org/github/fastai/course-v3/blob/master/nbs/dl1/lesson3-planet.ipynb&quot;&gt;fastai satelite imagery example&lt;/a&gt; based on Planet labs. &lt;a href=&quot;https://colab.research.google.com/drive/13b6HO7nhioYFRNTOjt47sAE51HWJ32iC&quot;&gt;The notebook&lt;/a&gt; has the full code for creating the databunch:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-10-07-01-06.png?w=852&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Data ready for modelling&lt;/p&gt;
+
+&lt;p&gt;Next, we choose a pre-trained model and re-train it with our data. Remember, the hope is that the model will learn features that are related to night lights and, by extension, consumption. I’ve had decent results with resnet models, but in the shared notebook I stick with models.vgg11_bn to more closely match the original paper. You could do much more on this model training step, but we pick a learning rate, train for a few epochs and move on. Another place to improve!&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-10-12-33-42.png?w=847&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Training the model to predict nightlights&lt;/p&gt;
+
+&lt;h2 id=&quot;using-the-model-as-a-feature-extractor&quot;&gt;Using the model as a feature extractor&lt;/h2&gt;
+
+&lt;p&gt;This is a really cool trick. We’ll hook into one of the final layers of the network, with 512 outputs. We’ll save these outputs as each image is run through the network, and they’ll be used in later modelling stages. To save the features, you could remove the last few layers and run the data through, or you can use a trick I learnt from &lt;a href=&quot;https://towardsdatascience.com/finding-similar-images-using-deep-learning-and-locality-sensitive-hashing-9528afee02f5&quot;&gt;this TDS article&lt;/a&gt; and keep the network intact.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-10-12-41-14.png?w=689&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Cumulative explained variance of top PCA features&lt;/p&gt;
+
+&lt;p&gt;512 (or 4096, depending on the mode and which layer you pick) is a lot of features. So we use PCA to get 30 or so meaningful features from those 512 values. As you can see from the plot above, the top few components explain most of the variance in the data. These top 30 PCA components are the features we’ll use for the last step in the process: predicting consumption.&lt;/p&gt;
+
+&lt;h2 id=&quot;putting-it-all-together&quot;&gt;Putting it all together&lt;/h2&gt;
+
+&lt;p&gt;For each image, we now have a set of 30 features that should be meaningful for predicting consumption. We group the images by cluster (aggregating their features). Now, for each cluster, we have the target variable (‘cons’), the nighttime lights (‘nl’) and 30 other potentially useful features. As we did right at the start, we’ll split the data into a test and a train set, train a model and then make predictions to see how well it does. Remember: our goal is to be better than a model that just uses nighttime lights. We’ll use the r^2 score when predicting log(y), as in the paper. The results:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Score using just nightlights (baseline): &lt;strong&gt;0.33&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;Score with features extracted from imagery: &lt;strong&gt;0.41&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Using &lt;em&gt;just the features derived from the imagery&lt;/em&gt;, we got a significant score increase. We’ve successfully used deep learning to squeeze some useful information out of satellite imagery, and in the process found a way to get better predictions of survey outcomes such as consumption. The paper got a score of 0.42 for Malawi using 100 images to our 20, so I’d call this a success.&lt;/p&gt;
+
+&lt;h2 id=&quot;improvements&quot;&gt;Improvements&lt;/h2&gt;
+
+&lt;p&gt;There are quite a few ways you can improve the score. Some are left as exercises for the reader :) here are a few that I’ve tried:&lt;br /&gt;
+1) Tweaking the model used in the final step: &lt;strong&gt;0.44 (better than the paper)&lt;/strong&gt;&lt;br /&gt;
+2) Using sub-sampling to boost size of training dataset + using a random forest model: &lt;strong&gt;0.51 (!)&lt;/strong&gt;&lt;br /&gt;
+3) Using a model trained for classification on binned NL values (as in paper) as opposed to training it on a regression task: &lt;strong&gt;score got worse&lt;/strong&gt;&lt;br /&gt;
+4) Cropping the downloaded images into 4 to get more training data for the model (no other changes): &lt;strong&gt;0.44&lt;/strong&gt; up from 0.41 without this step. &lt;strong&gt;&amp;gt;0.5&lt;/strong&gt; aggregating features of 3 different subsets of images for each cluster&lt;br /&gt;
+5) Using a resnet-50 model: &lt;strong&gt;0.4&lt;/strong&gt; (no obvious change this time - score likely depends less on model architecture and more on how well it is trained)&lt;/p&gt;
+
+&lt;p&gt;Other potential improvements:&lt;br /&gt;
+- Download more imagery&lt;br /&gt;
+- Train the model used as a feature extractor better (I did very little experimentation or fine-tuning)&lt;br /&gt;
+- Further explore the sub-sampling approach, and perhaps make multiple predictions on different sub-samples for each cluster in the test set, and combine the predictions.&lt;/p&gt;
+
+&lt;p&gt;Please let me know if any of these work well for you. I’m less interested in spending more time on this - see the next section.&lt;/p&gt;
+
+&lt;h2 id=&quot;where-next&quot;&gt;Where next&lt;/h2&gt;
+
+&lt;p&gt;I’m happy with these results, but don’t like a few aspects:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Using static maps from Google means we don’t know the date the imagery was acquired, and makes it hard to extend our predictions over a larger area without downloading a LOT of imagery (meaning you’d have to pay for the service or wait weeks)&lt;/li&gt;
+  &lt;li&gt;Using RGB images and an imagenet model means we’re starting from a place where the features are not optimal for the task - hence the need for the intermediate nighttime lights training step. It would be nice to have some sort of model that can interpret satellite imagery well already and go straight to the results.&lt;/li&gt;
+  &lt;li&gt;Downloading from Google Static Maps is a major bottleneck. I used only 20 images / cluster for this blog - to do 100 per cluster and for multiple countries would take weeks, and to extend predictions over Africa months. There is also patchy availability in some areas.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So, I’ve been experimenting with using Sentinel 2 imagery, which is freely available for download over large areas and comes with 13 bands over a wide spectrum of wavelengths. The resolution is lower, but the imagery still has lots of useful info. There are also large, labeled datasets like &lt;a href=&quot;https://arxiv.org/pdf/1709.00029.pdf&quot;&gt;the EuroSAT database&lt;/a&gt; that have allowed people to pretrain models and achieve &lt;a href=&quot;https://medium.com/omdena/fighting-hunger-through-open-satellite-data-a-new-state-of-the-art-for-land-use-classification-f57f20b7294b&quot;&gt;state of the art results for tasks like land cover classification.&lt;/a&gt; I’ve taken advantage of this by using a model pre-trained on this imagery for land cover classification tasks (using all 13 bands) and re-training it for use in the consumption prediction task we’ve just been looking at. I’ve been able to basically match the results we got above using only a single Sentinel 2 image for each cluster.&lt;/p&gt;
+
+&lt;p&gt;Using Sentinel imagery solves both my concerns - we can get imagery for an entire country, and make predictions for large areas, at different dates, without needing to rely on Google’s Static Maps API. More on this project in a future post…&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;p&gt;As always, I’m happy to answer questions and explain things better! Please let me know if you’d like the generated features (to save having to run the whole modelling process), more information on my process or tips on taking this further. Happy hacking :)&lt;/p&gt;</content><author><name></name></author><summary type="html">Every now and again, the World Bank conducts something called a Living Standards Measurement Study (LSMS) survey in different countries, with the purpose being to learn about people, their incomes and expenses, how they’re doing economically and so on. These surveys provide very useful info to various stakeholders, but they’re expensive to conduct. What if we could estimate some of the parameters they measure from satellite imagery instead? That was the goal of some researchers at Stanford back in 2016, who came up with a way to do just that and wrote it up into this wonderful paper in Science. In this blog post, we’ll explore their approach, replicate the paper (using some more modern tools) and try a few experiments of our own.</summary></entry><entry><title type="html">Zindi UberCT Part 3: Uber Movement</title><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/10/29/zindi-uberct-part-3-uber-movement.html" rel="alternate" type="text/html" title="Zindi UberCT Part 3: Uber Movement" /><published>2019-10-29T00:00:00-05:00</published><updated>2019-10-29T00:00:00-05:00</updated><id>https://johnowhitaker.github.io/datasciencecastnet_blog/2019/10/29/zindi-uberct-part-3-uber-movement</id><content type="html" xml:base="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/10/29/zindi-uberct-part-3-uber-movement.html">&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-29-10-46-36.png?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Uber Movement has launched in Cape Town&lt;/p&gt;
+
+&lt;p&gt;Today, Uber Movement launched in Cape Town. This is good news, since it means more data we can use in the ongoing Zindi competition I’ve been writing about! In this post we’ll look at how to get the data from Uber, and then we’ll add it to the model from Part 2 and see if it has allowed us to make better predictions. Unlike the previous posts, I won’t be sharing a full notebook to accompany this post - you’ll have to do the work yourself. That said, if anyone is having difficulties with anything mentioned here, feel free to reach out and I’ll try to help. So, let’s get going!&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-the-data&quot;&gt;Getting the data&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-29-10-08-52.png?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;My rough travel ‘zones’&lt;/p&gt;
+
+&lt;p&gt;Zindi provided some aggregated data from Uber movement at the start of the competition. This allows you to get the average travel time for a route, but not to see the daily travel times (it’s broken down by quarter). But on the Uber Movement site, you can specify a start and end location and get up to three months of daily average travel times. This is what we’ll be using.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/10/table.jpeg?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/10/map.jpeg?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Using sophisticated mapping software (see above), I planned 7 routes that would cover most of the road segments. For each route, I chose a start and end zone in the Uber Movement interface (see table above) and then I downloaded the data. To do it manually would have taken ages, and I’m lazy, so I automated the process using pyautogui, but you could also just resign yourself to a few hours of clicking away and get everything you need. More routes here would have meant better data, but this seemed enough to give me a rough traffic proxy.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-29-11-34-13.png?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Some of the travel times data&lt;/p&gt;
+
+&lt;p&gt;I manually tagged each segment with the equivalent Uber Movement trip I would be using to quantify traffic in that area, using QGIS. This let me link this ‘zone id’ from the segments shapefile to my main training data, and subsequently merge in the Uber Movement travel times based on zone id and datetime.&lt;/p&gt;
+
+&lt;h2 id=&quot;does-it-work&quot;&gt;Does it work?&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-29-16-25-32.png?w=409&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Score (y axis) vs threshold for predicting a 1. In my case, a threshold of ~0.35 was good.&lt;/p&gt;
+
+&lt;p&gt;In the previous post, the F1 score on my test set was about 0.082. This time around, without anything changed except the addition of the Uber data, the score rises above 0.09. Zindi score: &lt;strong&gt;0.0897.&lt;/strong&gt; This is better than an equivalent model did without the uber movement data, but it’s still not quite at the top - for that a little more tweaking will be needed :)&lt;/p&gt;
+
+&lt;p&gt;I’m sorry that this post is shorter than the others - it was written entirely in the time I spent waiting for data to load or models to fit, and is more of a show-and-tell than a tutorial. That said, I hope that I have achieved my main goal: showing that the Uber Movement data is a VERY useful input for this challenge, and giving a hint or two about where to start playing with it.&lt;/p&gt;
+
+&lt;p&gt;(PS: This model STILL ignores all of the SANRAL data. Steal these ideas and add that in, and you’re in for a treat. If you do this, please let me know? Good luck!)&lt;/p&gt;</content><author><name></name></author><summary type="html"></summary></entry><entry><title type="html">Zindi UberCT Part 2: Stepping Up</title><link href="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/10/21/zindi-uberct-part-2-stepping-up.html" rel="alternate" type="text/html" title="Zindi UberCT Part 2: Stepping Up" /><published>2019-10-21T00:00:00-05:00</published><updated>2019-10-21T00:00:00-05:00</updated><id>https://johnowhitaker.github.io/datasciencecastnet_blog/2019/10/21/zindi-uberct-part-2-stepping-up</id><content type="html" xml:base="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/10/21/zindi-uberct-part-2-stepping-up.html">&lt;p&gt;In &lt;a href=&quot;https://datasciencecastnet.home.blog/2019/10/19/zindi-uberct-part-1-getting-started/&quot;&gt;part 1&lt;/a&gt;, we looked at the &lt;a href=&quot;https://zindi.africa/competitions/uber-movement-sanral-cape-town-challenge&quot;&gt;SANRAL challenge on Zindi&lt;/a&gt; and got a simple first submission up on the leaderboard. In this tutorial I’ll show some extra features you can add on the road segments, bring in an external weather dataset, create a more complex model and give some hints on other things to try. Part 3 will hopefully add Uber movement data (waiting on the Oct 29 launch) and run through some GIS trickery to push this even further, but even without that you should be able to get a great score based on the first two tutorials.&lt;/p&gt;
+
+&lt;p&gt;You can follow along in the accompanying notebook, &lt;a href=&quot;https://colab.research.google.com/drive/1UlkF_wkDIUor7-5WGxXsoGejTtChAjVL&quot;&gt;available here&lt;/a&gt;. Let’s dive in.&lt;/p&gt;
+
+&lt;h2 id=&quot;reading-a-shapefile-with-geopandas&quot;&gt;Reading a shapefile with GeoPandas&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-21-09-02-17.png?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Reading the data from the road_segments shapefile&lt;/p&gt;
+
+&lt;p&gt;If you unzip the road_segments.zip file downloaded from Zindi (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;!unzip road_segments.zip&lt;/code&gt;), you’ll find a group of files with all sorts of weird extensions: .shp, .shx, .dbf, .cpg…. What is all this? This is a standard format for geospatial vector data known as a shapefile. The .shp file is the key, while the others add important extra info such as attributes and shape properties. Fortunately, we don’t have to deal with these different files ourselves - the geopandas library makes it fairly simple (see above). Once we have the data in a dataframe, all we need to do is merge on segment_id (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;train = pd.merge(train, road_segments, on='segment_id', how='left')&lt;/code&gt; to get some juicy extra info in our training set. These new features include the number of lanes, the surface type, the segment length and condition… all useful inputs to our model.&lt;/p&gt;
+
+&lt;h2 id=&quot;finding-weather-data&quot;&gt;Finding weather data&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-21-09-10-15.png?w=1014&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Zindi included a sentence on the data page: “You may use weather in your model. Please suggest weather datasets…”. I googled around and found rp5.ru - an excellent site that lets you download some historical weather data for locations around the globe. You’re welcome to check out the site, enter a date range, download, rename, etc. Or you can use my csv file, &lt;a href=&quot;https://github.com/johnowhitaker/datasciencecastnet/blob/master/weather.csv&quot;&gt;available here on github.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-21-09-13-21.png?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We can read the data from the CSV file and then link it to our training data with another simple merge command. The details are in &lt;a href=&quot;https://colab.research.google.com/drive/1UlkF_wkDIUor7-5WGxXsoGejTtChAjVL&quot;&gt;the notebook&lt;/a&gt;. You can read about what the columns mean on the rp5.ru site. I the example I only use the numeric columns, but you could add extra features like wind direction, clouds_present etc based on the text components of this dataset.&lt;/p&gt;
+
+&lt;h2 id=&quot;deep-learning-for-tabular-data&quot;&gt;Deep learning for tabular data&lt;/h2&gt;
+
+&lt;p&gt;I’ve recently been playing around a lot with the incredible fastai library. The course (fast.ai) will get you going quickly, and I highly recommend running through some of the examples there. In one of the lessons, Jeremy shows the use of a neural network on tabular data. This was traditionally fairly hard, and you had to deal with embeddings, normalization, overfitting….. Recently however, I’m seeing more and more use of these models for tabular data, thanks in no small part to fastai’s implementation that handles a lot of the complexity for you.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-21-09-19-52.png?w=1024&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Using fastai’s tabular learner.&lt;/p&gt;
+
+&lt;p&gt;I was going to go in-depth here with a tutorial, but honestly you’d be better off going to the source and seeing a lesson from Jeremy Howard (founding researcher at fast.ai) who takes you through dealing with tabular data as part of the aforementioned course. The relevant lesson is &lt;a href=&quot;https://course.fast.ai/videos/?lesson=4&quot;&gt;lesson 4&lt;/a&gt;, but if you have a few hours I’d suggest starting from the beginning.&lt;/p&gt;
+
+&lt;h2 id=&quot;how-far-have-we-come-and-where-do-we-go-next&quot;&gt;How far have we come, and where do we go next?&lt;/h2&gt;
+
+&lt;p&gt;I haven’t talked much about model scores or performance in this post. Is it worth adding all this extra data? And do these fancy neural networks do anything useful? Yes and yes - by making the improvements described above we take our score from 0.036 to 0.096, placing us just behind the top few entries.&lt;/p&gt;
+
+&lt;p&gt;But we have a secret weapon: the additional data! This score is achieved without making use of the vehicle counts per zone, the incident records or the vehicle data from SANRAL, and we haven’t even looked at Uber Movement yet.&lt;/p&gt;
+
+&lt;p&gt;I’m going to wait on writing the next part of this series. So, dear reader (or readers, if this gets traction!), the baton lies with you. Add that extra data, get creative with your features, play with different models and let’s see how good we can get.&lt;/p&gt;</content><author><name></name></author><summary type="html">In part 1, we looked at the SANRAL challenge on Zindi and got a simple first submission up on the leaderboard. In this tutorial I’ll show some extra features you can add on the road segments, bring in an external weather dataset, create a more complex model and give some hints on other things to try. Part 3 will hopefully add Uber movement data (waiting on the Oct 29 launch) and run through some GIS trickery to push this even further, but even without that you should be able to get a great score based on the first two tutorials.</summary></entry></feed>

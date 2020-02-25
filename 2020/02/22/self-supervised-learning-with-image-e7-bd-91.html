@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/datasciencecastnet_blog/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Intro | fastpages</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Intro" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Until fairly recently, deep learning models needed a LOT of data to get decent performance. Then came an innovation called transfer learning, which we’ve covered in some previous posts. We train a network once on a huge dataset (such as ImageNet, or the entire text of Wikipedia), and it learns all kinds of useful features. We can then retrain or ‘fine-tune’ this pretrained model on a new task (say, elephant vs zebra), and get incredible accuracy with fairly small training sets. But what do we do when there isn’t a pretrained model available?" />
+<meta property="og:description" content="Until fairly recently, deep learning models needed a LOT of data to get decent performance. Then came an innovation called transfer learning, which we’ve covered in some previous posts. We train a network once on a huge dataset (such as ImageNet, or the entire text of Wikipedia), and it learns all kinds of useful features. We can then retrain or ‘fine-tune’ this pretrained model on a new task (say, elephant vs zebra), and get incredible accuracy with fairly small training sets. But what do we do when there isn’t a pretrained model available?" />
+<link rel="canonical" href="https://johnowhitaker.github.io/datasciencecastnet_blog/2020/02/22/self-supervised-learning-with-image-e7-bd-91.html" />
+<meta property="og:url" content="https://johnowhitaker.github.io/datasciencecastnet_blog/2020/02/22/self-supervised-learning-with-image-e7-bd-91.html" />
+<meta property="og:site_name" content="fastpages" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-02-22T00:00:00-06:00" />
+<script type="application/ld+json">
+{"description":"Until fairly recently, deep learning models needed a LOT of data to get decent performance. Then came an innovation called transfer learning, which we’ve covered in some previous posts. We train a network once on a huge dataset (such as ImageNet, or the entire text of Wikipedia), and it learns all kinds of useful features. We can then retrain or ‘fine-tune’ this pretrained model on a new task (say, elephant vs zebra), and get incredible accuracy with fairly small training sets. But what do we do when there isn’t a pretrained model available?","@type":"BlogPosting","headline":"Intro","dateModified":"2020-02-22T00:00:00-06:00","datePublished":"2020-02-22T00:00:00-06:00","url":"https://johnowhitaker.github.io/datasciencecastnet_blog/2020/02/22/self-supervised-learning-with-image-e7-bd-91.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://johnowhitaker.github.io/datasciencecastnet_blog/2020/02/22/self-supervised-learning-with-image-e7-bd-91.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/datasciencecastnet_blog/assets/main.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml" title="fastpages" />
+
+  <script>
+  function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+  window.onload = wrap_img;
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      // add link icon to anchor tags
+      var elem = document.querySelectorAll(".anchor-link")
+      elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+      // remove paragraph tags in rendered toc (happens from notebooks)
+      var toctags = document.querySelectorAll(".toc-entry")
+      toctags.forEach(e => (e.firstElementChild.innerText = e.firstElementChild.innerText.replace('¶', '')))
+    });
+  </script>
+</head><body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/datasciencecastnet_blog/">fastpages</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/datasciencecastnet_blog/about/">About Me</a><a class="page-link" href="/datasciencecastnet_blog/search/">Search</a><a class="page-link" href="/datasciencecastnet_blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Intro</h1><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-02-22T00:00:00-06:00" itemprop="datePublished">
+        Feb 22, 2020
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      5 min read
+    
+</span></p>
+
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Until fairly recently, deep learning models needed a LOT of data to get decent performance. Then came an innovation called transfer learning, which we’ve covered in some previous posts. We train a network once on a huge dataset (such as ImageNet, or the entire text of Wikipedia), and it learns all kinds of useful features. We can then retrain or ‘fine-tune’ this pretrained model on a new task (say, elephant vs zebra), and get incredible accuracy with fairly small training sets. But what do we do when there isn’t a pretrained model available?</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2020/02/ssl.png?w=1024" alt="" /></p>
+
+<p>Pretext tasks (left) vs downstream task (right). I think I need to develop this style of illustration - how else will readers know that this blog is just a random dude writing on weekends? :)</p>
+
+<p>Enter Self-Supervised Learning (SSL). The idea here is that in some domains, there may not be vast amounts of labeled data, but there may be an abundance of unlabeled data. Can we take advantage of this by using it somehow to train a model that, as with transfer learning, can then be re-trained for a new task on a small dataset? It turns out the answer is yes - and it’s shaking things up in a big way. <a href="https://www.fast.ai/2020/01/13/self_supervised/">This fastai blog post</a> gives a nice breakdown of SSL, and shows some examples of ‘pretext tasks’ - tasks we can use to train a network on unlabeled data. In this post, we’ll try it for ourselves!</p>
+
+<p>Follow along in <a href="https://colab.research.google.com/drive/1nyFixKKTC5LOAyFWm-RgpVdIMkY9f1Dc">the companion notebook</a>.</p>
+
+<h2 id="image网">Image网</h2>
+
+<p>Read the literature on computer vision, and you’ll see that ImageNet has become THE way to show off your new algorithm. Which is great, but coming in at 1.3 million images, it’s a little tricky for the average person to play with. To get around this, some folks are turning to smaller subsets of ImageNet for early experimentation - if something works well in small scale tests, *then* we can try it in the big leagues. Leading this trend have been Jeremy Howard and the fastai team, who often use <a href="https://github.com/fastai/imagenette">ImageNette</a> (10 easy classes from ImageNet), <a href="https://github.com/fastai/imagenette#imagewoof">ImageWoof</a> (Some dog breeds from ImageNet) and most recently <a href="https://github.com/fastai/imagenette#image%E7%BD%91">Image网</a> (‘ImageWang’, 网 being ‘net’ in Chinese).</p>
+
+<p>Image网 contains some images from both ImageNette and ImageWoof, but with a twist: only 10% of the images are labeled to use for training. The remainder are in a folder, <code class="language-plaintext highlighter-rouge">unsup</code>, specifically for use in unsupervised learning. We’ll be using this dataset to try our hand at self-supervised learning, using the unlabeled images to train our network on a pretext task before trying classification.</p>
+
+<h2 id="defining-our-pretext-task">Defining Our Pretext Task</h2>
+
+<p>A pretext task should be one that forces the network to learn underlying patterns in the data. This is a new enough field that new ideas are being tried all the time, and I believe that a key skill in the future will be coming up with pretext tasks in different domains. For images, there are some options explained well in <a href="https://www.fast.ai/2020/01/13/self_supervised/">this fastai blog</a>. Options include:</p>
+
+<ul>
+  <li>Colorization of greyscale images</li>
+  <li>Classifying corrupted images</li>
+  <li>Image In-painting (filling in ‘cutouts’ in the image)</li>
+  <li>Solving jigsaws</li>
+</ul>
+
+<p>For fun, I came up with a variant of the image in-painting task that combines it with colorization. Several sections of the input image are blurred and turned greyscale. The network tries to replace these regions with sensible values, with the goal being to have the output match the original image as closely as possible. One reason I like the idea of this as a pretext task is that we humans get something similar. Each time we move our eyes, things that were in our blurry, greyscale peripheral vision are brought into sharp focus in our central vision - another input for the part of our brain that’s been pretending they were full HD color the whole time :)</p>
+
+<p>Here are some examples of the grey-blurred images and the desired outputs:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2020/02/screenshot-from-2020-02-22-16-29-29.png?w=746" alt="" /></p>
+
+<p>Input/Output pairs for our pretext task, using the RandomGreyBlur transform</p>
+
+<p>We train our network on this task for 15 epochs, and then save its parameters for later use in the downstream task. See the notebook for implementation details.</p>
+
+<h2 id="downstream-task-image-classification">Downstream Task: Image Classification</h2>
+
+<p>Now comes the fun part: seeing if our pretext task is of any use! We’ll follow the structure of the <a href="https://github.com/fastai/imagenette#image%E7%BD%91">Image网 leaderboard here</a>, looking at models for different image sizes trained with 5, 20, 80 or 200 epochs. The theory here is that we’d hope that out pretext task has given us a decent network, so we should get some results after 5 epochs, and keep getting better and better results with more training.</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2020/02/screenshot-from-2020-02-22-21-35-51.png?w=814" alt="" /></p>
+
+<p>Results from early testing</p>
+
+<p>The notebook goes through the process, training models on the labeled data provided with Image网 and scoring them on the validation set. This step can be quite tedious, but the 5-epoch models are enough to show that we’ve made an improvement on the baseline, which is pretty exciting. For training runs 20 epochs and greater, we still beat a baseline with no pre-training, but fall behind the current leaderboard entry based on simple inpainting. There is much tweaking to be done, and the runs take ~1 minute per epoch, so I’ll update this when I have more results.</p>
+
+<h2 id="where-next">Where Next?</h2>
+
+<p>Image网 is fairly new, and the leaderboard still needs filling in. Now is your chance for fame! Play with different pretext tasks (for eg, try just greyscale instead of blurred greyscale - it’s a single line of code to change), or tweak some of the parameters in the notebook and see if you can get a better score. And someone please do 256px?</p>
+
+<p>Beyond this toy example, remember that unlabeled data can be a useful asset, especially if labeled data is sparse. If you’re ever facing a domain where a pretrained model is unavailable, self-supervised learning might come to your rescue.</p>
+
+  </div><a class="u-url" href="/datasciencecastnet_blog/2020/02/22/self-supervised-learning-with-image-e7-bd-91.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/datasciencecastnet_blog/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">fastpages</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">fastpages</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list">
+  <li><a href="https://github.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#github"></use></svg> <span class="username">johnowhitaker</span></a></li><li><a href="https://www.twitter.com/fastdotai"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">fastdotai</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

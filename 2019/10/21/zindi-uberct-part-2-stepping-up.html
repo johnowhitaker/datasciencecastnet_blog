@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/datasciencecastnet_blog/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Zindi UberCT Part 2: Stepping Up | fastpages</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Zindi UberCT Part 2: Stepping Up" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In part 1, we looked at the SANRAL challenge on Zindi and got a simple first submission up on the leaderboard. In this tutorial I’ll show some extra features you can add on the road segments, bring in an external weather dataset, create a more complex model and give some hints on other things to try. Part 3 will hopefully add Uber movement data (waiting on the Oct 29 launch) and run through some GIS trickery to push this even further, but even without that you should be able to get a great score based on the first two tutorials." />
+<meta property="og:description" content="In part 1, we looked at the SANRAL challenge on Zindi and got a simple first submission up on the leaderboard. In this tutorial I’ll show some extra features you can add on the road segments, bring in an external weather dataset, create a more complex model and give some hints on other things to try. Part 3 will hopefully add Uber movement data (waiting on the Oct 29 launch) and run through some GIS trickery to push this even further, but even without that you should be able to get a great score based on the first two tutorials." />
+<link rel="canonical" href="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/10/21/zindi-uberct-part-2-stepping-up.html" />
+<meta property="og:url" content="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/10/21/zindi-uberct-part-2-stepping-up.html" />
+<meta property="og:site_name" content="fastpages" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-10-21T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"In part 1, we looked at the SANRAL challenge on Zindi and got a simple first submission up on the leaderboard. In this tutorial I’ll show some extra features you can add on the road segments, bring in an external weather dataset, create a more complex model and give some hints on other things to try. Part 3 will hopefully add Uber movement data (waiting on the Oct 29 launch) and run through some GIS trickery to push this even further, but even without that you should be able to get a great score based on the first two tutorials.","@type":"BlogPosting","headline":"Zindi UberCT Part 2: Stepping Up","dateModified":"2019-10-21T00:00:00-05:00","datePublished":"2019-10-21T00:00:00-05:00","url":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/10/21/zindi-uberct-part-2-stepping-up.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/10/21/zindi-uberct-part-2-stepping-up.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/datasciencecastnet_blog/assets/main.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml" title="fastpages" />
+
+  <script>
+  function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+  window.onload = wrap_img;
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      // add link icon to anchor tags
+      var elem = document.querySelectorAll(".anchor-link")
+      elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+      // remove paragraph tags in rendered toc (happens from notebooks)
+      var toctags = document.querySelectorAll(".toc-entry")
+      toctags.forEach(e => (e.firstElementChild.innerText = e.firstElementChild.innerText.replace('¶', '')))
+    });
+  </script>
+</head><body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/datasciencecastnet_blog/">fastpages</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/datasciencecastnet_blog/about/">About Me</a><a class="page-link" href="/datasciencecastnet_blog/search/">Search</a><a class="page-link" href="/datasciencecastnet_blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Zindi UberCT Part 2: Stepping Up</h1><p class="post-meta post-meta-title"><time class="dt-published" datetime="2019-10-21T00:00:00-05:00" itemprop="datePublished">
+        Oct 21, 2019
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      3 min read
+    
+</span></p>
+
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>In <a href="https://datasciencecastnet.home.blog/2019/10/19/zindi-uberct-part-1-getting-started/">part 1</a>, we looked at the <a href="https://zindi.africa/competitions/uber-movement-sanral-cape-town-challenge">SANRAL challenge on Zindi</a> and got a simple first submission up on the leaderboard. In this tutorial I’ll show some extra features you can add on the road segments, bring in an external weather dataset, create a more complex model and give some hints on other things to try. Part 3 will hopefully add Uber movement data (waiting on the Oct 29 launch) and run through some GIS trickery to push this even further, but even without that you should be able to get a great score based on the first two tutorials.</p>
+
+<p>You can follow along in the accompanying notebook, <a href="https://colab.research.google.com/drive/1UlkF_wkDIUor7-5WGxXsoGejTtChAjVL">available here</a>. Let’s dive in.</p>
+
+<h2 id="reading-a-shapefile-with-geopandas">Reading a shapefile with GeoPandas</h2>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-21-09-02-17.png?w=1024" alt="" /></p>
+
+<p>Reading the data from the road_segments shapefile</p>
+
+<p>If you unzip the road_segments.zip file downloaded from Zindi (<code class="language-plaintext highlighter-rouge">!unzip road_segments.zip</code>), you’ll find a group of files with all sorts of weird extensions: .shp, .shx, .dbf, .cpg…. What is all this? This is a standard format for geospatial vector data known as a shapefile. The .shp file is the key, while the others add important extra info such as attributes and shape properties. Fortunately, we don’t have to deal with these different files ourselves - the geopandas library makes it fairly simple (see above). Once we have the data in a dataframe, all we need to do is merge on segment_id (<code class="language-plaintext highlighter-rouge">train = pd.merge(train, road_segments, on='segment_id', how='left')</code> to get some juicy extra info in our training set. These new features include the number of lanes, the surface type, the segment length and condition… all useful inputs to our model.</p>
+
+<h2 id="finding-weather-data">Finding weather data</h2>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-21-09-10-15.png?w=1014" alt="" /></p>
+
+<p>Zindi included a sentence on the data page: “You may use weather in your model. Please suggest weather datasets…”. I googled around and found rp5.ru - an excellent site that lets you download some historical weather data for locations around the globe. You’re welcome to check out the site, enter a date range, download, rename, etc. Or you can use my csv file, <a href="https://github.com/johnowhitaker/datasciencecastnet/blob/master/weather.csv">available here on github.</a></p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-21-09-13-21.png?w=1024" alt="" /></p>
+
+<p>We can read the data from the CSV file and then link it to our training data with another simple merge command. The details are in <a href="https://colab.research.google.com/drive/1UlkF_wkDIUor7-5WGxXsoGejTtChAjVL">the notebook</a>. You can read about what the columns mean on the rp5.ru site. I the example I only use the numeric columns, but you could add extra features like wind direction, clouds_present etc based on the text components of this dataset.</p>
+
+<h2 id="deep-learning-for-tabular-data">Deep learning for tabular data</h2>
+
+<p>I’ve recently been playing around a lot with the incredible fastai library. The course (fast.ai) will get you going quickly, and I highly recommend running through some of the examples there. In one of the lessons, Jeremy shows the use of a neural network on tabular data. This was traditionally fairly hard, and you had to deal with embeddings, normalization, overfitting….. Recently however, I’m seeing more and more use of these models for tabular data, thanks in no small part to fastai’s implementation that handles a lot of the complexity for you.</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-21-09-19-52.png?w=1024" alt="" /></p>
+
+<p>Using fastai’s tabular learner.</p>
+
+<p>I was going to go in-depth here with a tutorial, but honestly you’d be better off going to the source and seeing a lesson from Jeremy Howard (founding researcher at fast.ai) who takes you through dealing with tabular data as part of the aforementioned course. The relevant lesson is <a href="https://course.fast.ai/videos/?lesson=4">lesson 4</a>, but if you have a few hours I’d suggest starting from the beginning.</p>
+
+<h2 id="how-far-have-we-come-and-where-do-we-go-next">How far have we come, and where do we go next?</h2>
+
+<p>I haven’t talked much about model scores or performance in this post. Is it worth adding all this extra data? And do these fancy neural networks do anything useful? Yes and yes - by making the improvements described above we take our score from 0.036 to 0.096, placing us just behind the top few entries.</p>
+
+<p>But we have a secret weapon: the additional data! This score is achieved without making use of the vehicle counts per zone, the incident records or the vehicle data from SANRAL, and we haven’t even looked at Uber Movement yet.</p>
+
+<p>I’m going to wait on writing the next part of this series. So, dear reader (or readers, if this gets traction!), the baton lies with you. Add that extra data, get creative with your features, play with different models and let’s see how good we can get.</p>
+
+  </div><a class="u-url" href="/datasciencecastnet_blog/2019/10/21/zindi-uberct-part-2-stepping-up.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/datasciencecastnet_blog/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">fastpages</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">fastpages</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list">
+  <li><a href="https://github.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#github"></use></svg> <span class="username">johnowhitaker</span></a></li><li><a href="https://www.twitter.com/fastdotai"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">fastdotai</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

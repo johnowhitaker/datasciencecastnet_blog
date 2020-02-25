@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/datasciencecastnet_blog/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Deep Learning + Remote Sensing - Using NNs to turn imagery into meaningful features | fastpages</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Deep Learning + Remote Sensing - Using NNs to turn imagery into meaningful features" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Every now and again, the World Bank conducts something called a Living Standards Measurement Study (LSMS) survey in different countries, with the purpose being to learn about people, their incomes and expenses, how they’re doing economically and so on. These surveys provide very useful info to various stakeholders, but they’re expensive to conduct. What if we could estimate some of the parameters they measure from satellite imagery instead? That was the goal of some researchers at Stanford back in 2016, who came up with a way to do just that and wrote it up into this wonderful paper in Science. In this blog post, we’ll explore their approach, replicate the paper (using some more modern tools) and try a few experiments of our own." />
+<meta property="og:description" content="Every now and again, the World Bank conducts something called a Living Standards Measurement Study (LSMS) survey in different countries, with the purpose being to learn about people, their incomes and expenses, how they’re doing economically and so on. These surveys provide very useful info to various stakeholders, but they’re expensive to conduct. What if we could estimate some of the parameters they measure from satellite imagery instead? That was the goal of some researchers at Stanford back in 2016, who came up with a way to do just that and wrote it up into this wonderful paper in Science. In this blog post, we’ll explore their approach, replicate the paper (using some more modern tools) and try a few experiments of our own." />
+<link rel="canonical" href="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/11/12/deep-learning-remote-sensing-using-nns-to-turn-imagery-into-meaningful-features.html" />
+<meta property="og:url" content="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/11/12/deep-learning-remote-sensing-using-nns-to-turn-imagery-into-meaningful-features.html" />
+<meta property="og:site_name" content="fastpages" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-11-12T00:00:00-06:00" />
+<script type="application/ld+json">
+{"description":"Every now and again, the World Bank conducts something called a Living Standards Measurement Study (LSMS) survey in different countries, with the purpose being to learn about people, their incomes and expenses, how they’re doing economically and so on. These surveys provide very useful info to various stakeholders, but they’re expensive to conduct. What if we could estimate some of the parameters they measure from satellite imagery instead? That was the goal of some researchers at Stanford back in 2016, who came up with a way to do just that and wrote it up into this wonderful paper in Science. In this blog post, we’ll explore their approach, replicate the paper (using some more modern tools) and try a few experiments of our own.","@type":"BlogPosting","headline":"Deep Learning + Remote Sensing - Using NNs to turn imagery into meaningful features","dateModified":"2019-11-12T00:00:00-06:00","datePublished":"2019-11-12T00:00:00-06:00","url":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/11/12/deep-learning-remote-sensing-using-nns-to-turn-imagery-into-meaningful-features.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/11/12/deep-learning-remote-sensing-using-nns-to-turn-imagery-into-meaningful-features.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/datasciencecastnet_blog/assets/main.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml" title="fastpages" />
+
+  <script>
+  function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+  window.onload = wrap_img;
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      // add link icon to anchor tags
+      var elem = document.querySelectorAll(".anchor-link")
+      elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+      // remove paragraph tags in rendered toc (happens from notebooks)
+      var toctags = document.querySelectorAll(".toc-entry")
+      toctags.forEach(e => (e.firstElementChild.innerText = e.firstElementChild.innerText.replace('¶', '')))
+    });
+  </script>
+</head><body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/datasciencecastnet_blog/">fastpages</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/datasciencecastnet_blog/about/">About Me</a><a class="page-link" href="/datasciencecastnet_blog/search/">Search</a><a class="page-link" href="/datasciencecastnet_blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Deep Learning + Remote Sensing - Using NNs to turn imagery into meaningful features</h1><p class="post-meta post-meta-title"><time class="dt-published" datetime="2019-11-12T00:00:00-06:00" itemprop="datePublished">
+        Nov 12, 2019
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      12 min read
+    
+</span></p>
+
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Every now and again, the World Bank conducts something called a Living Standards Measurement Study (LSMS) survey in different countries, with the purpose being to learn about people, their incomes and expenses, how they’re doing economically and so on. These surveys provide very useful info to various stakeholders, but they’re expensive to conduct. What if we could estimate some of the parameters they measure from satellite imagery instead? That was the goal of some researchers at Stanford back in 2016, who came up with a way to do just that and wrote it up into <a href="https://science.sciencemag.org/content/353/6301/790">this wonderful paper in Science</a>. In this blog post, we’ll explore their approach, replicate the paper (using some more modern tools) and try a few experiments of our own.</p>
+
+<h2 id="predicting-poverty-where-do-you-start">Predicting Poverty: Where do you start?</h2>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-18-20-29-49.png?w=1024" alt="" /></p>
+
+<p>Nighttime lights</p>
+
+<p>How would you use remote sensing to estimate economic activity for a given location? One popular method is to look at how much light is being emitted there at night - as my 3 regular readers may remember, there is a great nighttime lights dataset produced by NOAA that was featured in <a href="https://datasciencecastnet.home.blog/2019/07/08/data-glimpse-nighttime-lights/">a data glimpse</a> a while back. It turns out that the amount of light sent out does correlate with metrics such as assets and consumption, and this data has been used in the past to model things like economic activity (see <a href="https://datasciencecastnet.home.blog/2019/06/28/data-glimpse-visualizing-economic-activity-with-the-g-econ-project-data/">another data glimpse</a> post for more that). One problem with this approach: the low end of the scale gets tricky - nighttime lights don’t vary much below a certain level of expenditure.</p>
+
+<p>Looking at daytime imagery, we see many things that might help tell us about the wealth in a place: type of roofing material on the houses, the number of roads, how built-up an area is…. But there’s a problem here too: these features are quite complicated, and training data is sparse. We could try to train a deep learning model to take in imagery and spit out income level, but the LSMS surveys typically only cover a few hundred locations - not a very large dataset, in other words.</p>
+
+<h2 id="jean-et-als-sneaky-trick">Jean et al’s sneaky trick</h2>
+
+<p>The key insight in the paper is that we can train a CNN to predict nighttime lights (for which we have plentiful data) from satellite imagery, and in the process it will learn features that are important for predicting lights - and that these features will likely also be good for predicting our target variable as well! This multi-step transfer learning approach did very well, and is a technique that’s definitely worth keeping in mind when you’re facing a problem without much data.</p>
+
+<p>But wait, you say. How is this better than just using nightlights? From <a href="https://science.sciencemag.org/content/353/6301/790">the article: “<em>How might a model partially trained on an imperfect proxy for economic well-being—in this case, the nightlights used in the second training step above—improve upon the direct use of this proxy as an estimator of well-being? Although nightlights display little variation at lower expenditure levels (Fig. 1, C to F), the survey data indicate that other features visible in daytime satellite imagery, such as roofing material and distance to urban areas, vary roughly linearly with expenditure (fig. S2) and thus better capture variation among poorer clusters. Because both nightlights and these features show variation at higher income levels, training on nightlights can help the CNN learn to extract features like these that more capably capture variation across the entire consumption distribution.</em></a>” (Jean et al, 2016). So the model learns expenditure-dependent features that are useful even at the low end, overcoming the issue faced by approaches that use nightlights alone. Too clever!</p>
+
+<h2 id="can-we-replicate-it">Can we replicate it?</h2>
+
+<p>The authors of the paper shared their code publicly but… it’s a little hard to follow, and is scattered across multiple R and Python files. Luckily, someone has already done some of the hard work for us, and has shared a pytorch version in <a href="https://github.com/jmather625/predicting-poverty-replication">this GitHub repository</a>. If you’d like to replicate the paper exactly, that’s a good place to start. I’ve gone a step further and consolidated everything into a single <a href="https://colab.research.google.com/drive/13b6HO7nhioYFRNTOjt47sAE51HWJ32iC">Google Colab notebook</a> that borrows code from the above and builds on it. The rest of this post will explain the different sections of the notebook, and why I depart from the exact method used in the paper. Spoiler: we get a slightly better result with much fewer images downloaded.</p>
+
+<h2 id="getting-the-data">Getting the data</h2>
+
+<p>The data comes from the <a href="https://microdata.worldbank.org/index.php/catalog/lsms https://microdata.worldbank.org/index.php/catalog/2936/get-microdata">Fourth Integrated Household Survey 2016-2017</a>. We’ll focus on Malawi for this post. <a href="https://colab.research.google.com/drive/13b6HO7nhioYFRNTOjt47sAE51HWJ32iC">The notebook</a> shows how to read in several of the CSV files downloaded from the website, and combine them into ‘clusters’ - see below. For each cluster location, we have a unique ID (HHID), a location (lat and lon), an urban/rural indicator, a weighting for statisticians, and the important variable: consumption (cons). This last one is the thing we’ll be trying to predict.</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-09-18-48-17.png?w=685" alt="" /></p>
+
+<p>The relevant info from the survey data</p>
+
+<p>One snag: the lat and lon columns are tricksy! They’ve been shifted to protect anonymity, so we’ll have to consider a 10km buffer around the given location and hope the true location is close enough that we get useful info.</p>
+
+<h2 id="adding-nighttime-lights">Adding nighttime lights</h2>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-09-18-57-07.png?w=720" alt="" /></p>
+
+<p>Getting the nightlights value for a given location</p>
+
+<p>To get the nightlight data, we’ll use the python library to run Google Earth Engine queries. You’ll need a GEE account, and <strong><a href="https://colab.research.google.com/drive/13b6HO7nhioYFRNTOjt47sAE51HWJ32iC">the notebook</a></strong> shows how to authenticate and get the required data. We can get the nightlights for each cluster location (getting the mean over an 8km buffer around the lat/lon points) and add this number as a column. To give us a target to aim at, we’ll compare any future models to a simple model based on these nightlight values only.</p>
+
+<h2 id="downloading-static-maps-images">Downloading static maps images</h2>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-09-19-31-36.png?w=592" alt="" /></p>
+
+<p>Getting imagery for a given location</p>
+
+<p>The next step takes a while: we need to download images for the locations. BUT: we don’t just want one for each cluster location - instead, we want a selection from the surrounding area. Each of these will have it’s own nightlights value, so that we get a larger training set to build our model on. Later, we’ll extract features for each image in a cluster and combine them. Details are in <a href="https://colab.research.google.com/drive/13b6HO7nhioYFRNTOjt47sAE51HWJ32iC">the notebook</a>. The code takes several hours to run, but at the end of it you’ll have thousands of images ready to use.</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-10-06-57-42.png?w=989" alt="" /></p>
+
+<p>Tracking requests/sec on in my Google Cloud Console</p>
+
+<p>You’ll notice that I only generate 20 locations around each cluster. The original paper uses 100. Reasons: 1) I’m impatient. 2) There is a rate limit of 25k images/day, and I didn’t want to wait (see #1), 3) The images are 400 x 400, but are then shrunk to train the model. I figured I could split the 400px image into 4 (or 9) smaller images that overlap slightly, and thus get more training data for free. This is suggested as a “TO TRY” in the notebook, but hint: it works. If you really wanted to get a better score, trying this or adding more imagery is an easy way to do so.</p>
+
+<h2 id="training-a-model">Training a model</h2>
+
+<p>I’ll be using fastai to simplify the model creation and training stages. before we can create a model, we need an appropriate databunch to hold the training data. An optional addition at this stage is to add image transforms to augment our training data - which I do with <code class="language-plaintext highlighter-rouge">tfms = get_transforms(flip_vert=True, max_lighting=0.1, max_zoom=1.05, max_warp=0.)</code> as suggested in the <a href="https://nbviewer.jupyter.org/github/fastai/course-v3/blob/master/nbs/dl1/lesson3-planet.ipynb">fastai satelite imagery example</a> based on Planet labs. <a href="https://colab.research.google.com/drive/13b6HO7nhioYFRNTOjt47sAE51HWJ32iC">The notebook</a> has the full code for creating the databunch:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-10-07-01-06.png?w=852" alt="" /></p>
+
+<p>Data ready for modelling</p>
+
+<p>Next, we choose a pre-trained model and re-train it with our data. Remember, the hope is that the model will learn features that are related to night lights and, by extension, consumption. I’ve had decent results with resnet models, but in the shared notebook I stick with models.vgg11_bn to more closely match the original paper. You could do much more on this model training step, but we pick a learning rate, train for a few epochs and move on. Another place to improve!</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-10-12-33-42.png?w=847" alt="" /></p>
+
+<p>Training the model to predict nightlights</p>
+
+<h2 id="using-the-model-as-a-feature-extractor">Using the model as a feature extractor</h2>
+
+<p>This is a really cool trick. We’ll hook into one of the final layers of the network, with 512 outputs. We’ll save these outputs as each image is run through the network, and they’ll be used in later modelling stages. To save the features, you could remove the last few layers and run the data through, or you can use a trick I learnt from <a href="https://towardsdatascience.com/finding-similar-images-using-deep-learning-and-locality-sensitive-hashing-9528afee02f5">this TDS article</a> and keep the network intact.</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/11/screenshot-from-2019-11-10-12-41-14.png?w=689" alt="" /></p>
+
+<p>Cumulative explained variance of top PCA features</p>
+
+<p>512 (or 4096, depending on the mode and which layer you pick) is a lot of features. So we use PCA to get 30 or so meaningful features from those 512 values. As you can see from the plot above, the top few components explain most of the variance in the data. These top 30 PCA components are the features we’ll use for the last step in the process: predicting consumption.</p>
+
+<h2 id="putting-it-all-together">Putting it all together</h2>
+
+<p>For each image, we now have a set of 30 features that should be meaningful for predicting consumption. We group the images by cluster (aggregating their features). Now, for each cluster, we have the target variable (‘cons’), the nighttime lights (‘nl’) and 30 other potentially useful features. As we did right at the start, we’ll split the data into a test and a train set, train a model and then make predictions to see how well it does. Remember: our goal is to be better than a model that just uses nighttime lights. We’ll use the r^2 score when predicting log(y), as in the paper. The results:</p>
+
+<ul>
+  <li>Score using just nightlights (baseline): <strong>0.33</strong></li>
+  <li>Score with features extracted from imagery: <strong>0.41</strong></li>
+</ul>
+
+<p>Using <em>just the features derived from the imagery</em>, we got a significant score increase. We’ve successfully used deep learning to squeeze some useful information out of satellite imagery, and in the process found a way to get better predictions of survey outcomes such as consumption. The paper got a score of 0.42 for Malawi using 100 images to our 20, so I’d call this a success.</p>
+
+<h2 id="improvements">Improvements</h2>
+
+<p>There are quite a few ways you can improve the score. Some are left as exercises for the reader :) here are a few that I’ve tried:<br />
+1) Tweaking the model used in the final step: <strong>0.44 (better than the paper)</strong><br />
+2) Using sub-sampling to boost size of training dataset + using a random forest model: <strong>0.51 (!)</strong><br />
+3) Using a model trained for classification on binned NL values (as in paper) as opposed to training it on a regression task: <strong>score got worse</strong><br />
+4) Cropping the downloaded images into 4 to get more training data for the model (no other changes): <strong>0.44</strong> up from 0.41 without this step. <strong>&gt;0.5</strong> aggregating features of 3 different subsets of images for each cluster<br />
+5) Using a resnet-50 model: <strong>0.4</strong> (no obvious change this time - score likely depends less on model architecture and more on how well it is trained)</p>
+
+<p>Other potential improvements:<br />
+- Download more imagery<br />
+- Train the model used as a feature extractor better (I did very little experimentation or fine-tuning)<br />
+- Further explore the sub-sampling approach, and perhaps make multiple predictions on different sub-samples for each cluster in the test set, and combine the predictions.</p>
+
+<p>Please let me know if any of these work well for you. I’m less interested in spending more time on this - see the next section.</p>
+
+<h2 id="where-next">Where next</h2>
+
+<p>I’m happy with these results, but don’t like a few aspects:</p>
+
+<ul>
+  <li>Using static maps from Google means we don’t know the date the imagery was acquired, and makes it hard to extend our predictions over a larger area without downloading a LOT of imagery (meaning you’d have to pay for the service or wait weeks)</li>
+  <li>Using RGB images and an imagenet model means we’re starting from a place where the features are not optimal for the task - hence the need for the intermediate nighttime lights training step. It would be nice to have some sort of model that can interpret satellite imagery well already and go straight to the results.</li>
+  <li>Downloading from Google Static Maps is a major bottleneck. I used only 20 images / cluster for this blog - to do 100 per cluster and for multiple countries would take weeks, and to extend predictions over Africa months. There is also patchy availability in some areas.</li>
+</ul>
+
+<p>So, I’ve been experimenting with using Sentinel 2 imagery, which is freely available for download over large areas and comes with 13 bands over a wide spectrum of wavelengths. The resolution is lower, but the imagery still has lots of useful info. There are also large, labeled datasets like <a href="https://arxiv.org/pdf/1709.00029.pdf">the EuroSAT database</a> that have allowed people to pretrain models and achieve <a href="https://medium.com/omdena/fighting-hunger-through-open-satellite-data-a-new-state-of-the-art-for-land-use-classification-f57f20b7294b">state of the art results for tasks like land cover classification.</a> I’ve taken advantage of this by using a model pre-trained on this imagery for land cover classification tasks (using all 13 bands) and re-training it for use in the consumption prediction task we’ve just been looking at. I’ve been able to basically match the results we got above using only a single Sentinel 2 image for each cluster.</p>
+
+<p>Using Sentinel imagery solves both my concerns - we can get imagery for an entire country, and make predictions for large areas, at different dates, without needing to rely on Google’s Static Maps API. More on this project in a future post…</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>As always, I’m happy to answer questions and explain things better! Please let me know if you’d like the generated features (to save having to run the whole modelling process), more information on my process or tips on taking this further. Happy hacking :)</p>
+
+  </div><a class="u-url" href="/datasciencecastnet_blog/2019/11/12/deep-learning-remote-sensing-using-nns-to-turn-imagery-into-meaningful-features.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/datasciencecastnet_blog/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">fastpages</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">fastpages</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list">
+  <li><a href="https://github.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#github"></use></svg> <span class="username">johnowhitaker</span></a></li><li><a href="https://www.twitter.com/fastdotai"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">fastdotai</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

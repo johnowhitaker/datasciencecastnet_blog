@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/datasciencecastnet_blog/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Curious correlations | fastpages</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Curious correlations" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I wanted to write this up to show how easy it is becoming to test ideas and find interesting trends in data. Please don’t draw too many conclusions from the numbers here - pinch of salt and all that." />
+<meta property="og:description" content="I wanted to write this up to show how easy it is becoming to test ideas and find interesting trends in data. Please don’t draw too many conclusions from the numbers here - pinch of salt and all that." />
+<link rel="canonical" href="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/01/22/curious-correlations.html" />
+<meta property="og:url" content="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/01/22/curious-correlations.html" />
+<meta property="og:site_name" content="fastpages" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-01-22T00:00:00-06:00" />
+<script type="application/ld+json">
+{"description":"I wanted to write this up to show how easy it is becoming to test ideas and find interesting trends in data. Please don’t draw too many conclusions from the numbers here - pinch of salt and all that.","@type":"BlogPosting","headline":"Curious correlations","dateModified":"2019-01-22T00:00:00-06:00","datePublished":"2019-01-22T00:00:00-06:00","url":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/01/22/curious-correlations.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/01/22/curious-correlations.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/datasciencecastnet_blog/assets/main.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml" title="fastpages" />
+
+  <script>
+  function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+  window.onload = wrap_img;
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      // add link icon to anchor tags
+      var elem = document.querySelectorAll(".anchor-link")
+      elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+      // remove paragraph tags in rendered toc (happens from notebooks)
+      var toctags = document.querySelectorAll(".toc-entry")
+      toctags.forEach(e => (e.firstElementChild.innerText = e.firstElementChild.innerText.replace('¶', '')))
+    });
+  </script>
+</head><body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/datasciencecastnet_blog/">fastpages</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/datasciencecastnet_blog/about/">About Me</a><a class="page-link" href="/datasciencecastnet_blog/search/">Search</a><a class="page-link" href="/datasciencecastnet_blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Curious correlations</h1><p class="post-meta post-meta-title"><time class="dt-published" datetime="2019-01-22T00:00:00-06:00" itemprop="datePublished">
+        Jan 22, 2019
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      5 min read
+    
+</span></p>
+
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>I wanted to write this up to show how easy it is becoming to test ideas and find interesting trends in data. Please don’t draw too many conclusions from the numbers here - pinch of salt and all that.</p>
+
+<p>Yesterday I came across the <a href="https://map.ox.ac.uk/wellcomemalariaprize/">Wellcome Trust Data Re-Use Prize: Maleria.</a> They have made tons of data available, and invited participants to generate a new insight, tool or health application from that data. Incredible to see such great initiatives.</p>
+
+<p>Browsing through the data, one map in particular drew my attention - the ‘Residual Means’. These “show the remaining (residual) transmission that has not been accounted for by the covariates already in the model.” Doesn’t that smell juicy?</p>
+
+<p>Explaining this unattributed transmission is one of the example questions provided. It would be neat to see if we can figure out why malaria infection rates are higher than expected in some areas, and lower in others.</p>
+
+<p>I was looking at all this as I procrastinated some work I’m doing mapping baobab trees. It occurred to me that it wouldn’t be completely absurd to see if there is any relation between the two subjects. Now you’ll just have to take my word on this for now, but rest assured that I have a decently accurate map of baobab tree density for Zimbabwe and surrounds. I quickly downloaded the residuals maps and fired up QGIS to take a look.</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/01/screenshot-from-2019-01-22-15-02-04.png" alt="" /></p>
+
+<p>This isn’t the density map I used, but it is similar and looks prettier</p>
+
+<p>Estimating correlation by looking at two maps and saying “there seems to be some patterns here” is not an established scientific practice, but it is fun to see the brains pattern-matching functions get abused. After a few minutes the fun wore off and I got down to the serious business. I want to see if there is a correlation between baobab density (or rather, access to baobab fruit) and malerial transmission/infection.</p>
+
+<p>Stackoverflow “get raster value at point” since it’s been a while. Wow - I don’t even have the gdal toolbox on this laptop yet! Technical hurdles out of the way, I threw together some code:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/01/screenshot-from-2019-01-22-14-37-13.png" alt="" /></p>
+
+<p>Full code listing on Github <link /></p>
+
+<p>Creating regularly spaced points over the area of interest (i.e. the area I have baobab densities for), I use the above code to sample the baobab density and the transmission residual at each point. Next, we check to see if they’re correlated:</p>
+
+<p><em>scipy.stats.pearsonr(densities, maleria_residuals)</em> yields a correlation coefficient of -0.1226401351031383, p=0. That is, places with more baobabs have less unattributed transmission than places without. To show this visually, let’s look at a scatter plot of the two variables:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/01/scatter.png" alt="" /></p>
+
+<p>Scatter plot - unattributed transmission vs baobab density</p>
+
+<p>Places with high baobab density have inexplicably low transmission rates, in general. In fact, 86% of locations with estimated baobab density &gt;10 trees/hectare had a negative ‘unattributed transmission’ value.</p>
+
+<p>At this point, my half-hour break should have ended, but I was interested. I had mainly done asked the question as an exercise in seeing how easy it was to play with the data. But there was a correlation (note: correlation != causation). Now it could well be that baobab trees and malaria transmission are both dependent on some of the same environmental factors, some of which might not have been taken into account by the model. But could it be the case that this wonderful tree (I’m a little biased) might be doing some good?</p>
+
+<p>Baobab fruit is good for you [1]. It’s got lots of minerals and vitamins, and my initial hunch was that maybe, just maybe, it could be boosting the health of any community who lives close to the trees. Another angle came up when I looked for sources for [1] and found references to the use of baobab in traditional medicine as a treatment for malaria [2, 3]. Now curious, I looked around and found a study [4] suggesting “that Adansonia digitata protects against Plasmodium berghei induced-malaria, and that administration of the extract after established infection reduced malaria progression.” (in mice - from the [4]).</p>
+
+<p>To sum up, we’ve looked at the malaria data and found that there are some variations in the transmission rates that the current models can’t explain. We’ve then examined the relationship between baobab tree density and malaria transmission residuals and noted that there is a small negative correlation. We’ve seen that areas with baobabs present tend to have lower transmission rates than expected, and presented the idea that this could be due to the health benefits of the fruit or the anti-malarial properties of the bark, which is often used in traditional medicine. All done, thank you very much, can I has my PhD yet?</p>
+
+<p>Science isn’t quite that easy. I share this story to show how rapidly you can start generating hypotheses and playing with data. But to give a rigorous answer will take a little more than an hour coding and an hour smugly writing a blog post. I can think of a few reasons why the results here should be taken with a large pinch of salt, and I leave it as an exercise for the reader to list a whole bunch more. Hopefully soon I’ll have time for a follow-up, doing it properly and explaining how one should actually go about it.</p>
+
+<p>For now, cheers</p>
+
+<p>References</p>
+
+<p>[1] - I had some sources, but it’s more entertaining if you google ‘baobab superfruit’ and then ignore the most enthusiastic 90% of results. But see [2] for some good info (available online at https://www.sciencedirect.com/science/article/pii/S222116911530174X#bib4)</p>
+
+<p>[2] - Rahul, J., Jain, M.K., Singh, S.P., Kamal, R.K., Naz, A., Gupta, A.K. and Mrityunjay, S.K., 2015. Adansonia digitata L.(baobab): a review of traditional information and taxonomic description. <em>Asian Pacific Journal of Tropical Biomedicine</em>, <em>5</em>(1), pp.79-84.</p>
+
+<p>[3] - Kamatou, G.P.P., Vermaak, I. and Viljoen, A.M., 2011. An updated review of Adansonia digitata: A commercially important African tree. <em>South African Journal of Botany</em>, <em>77</em>(4), pp.908-919.</p>
+
+<p>[4] - Adeoye, A.O. and Bewaji, C.O., 2018. Chemopreventive and remediation effect of Adansonia digitata L. Baobab (Bombacaceae) stem bark extracts in mouse model malaria. <em>Journal of ethnopharmacology</em>, <em>210</em>, pp.31-38.</p>
+
+  </div><a class="u-url" href="/datasciencecastnet_blog/2019/01/22/curious-correlations.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/datasciencecastnet_blog/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">fastpages</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">fastpages</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list">
+  <li><a href="https://github.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#github"></use></svg> <span class="username">johnowhitaker</span></a></li><li><a href="https://www.twitter.com/fastdotai"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">fastdotai</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

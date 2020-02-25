@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/datasciencecastnet_blog/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Packaging a classification model as a web app | fastpages</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Packaging a classification model as a web app" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="An easy to use blogging platform with support for Jupyter Notebooks." />
+<meta property="og:description" content="An easy to use blogging platform with support for Jupyter Notebooks." />
+<link rel="canonical" href="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/09/12/packaging-a-classification-model-as-a-web-app.html" />
+<meta property="og:url" content="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/09/12/packaging-a-classification-model-as-a-web-app.html" />
+<meta property="og:site_name" content="fastpages" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-09-12T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"An easy to use blogging platform with support for Jupyter Notebooks.","@type":"BlogPosting","headline":"Packaging a classification model as a web app","dateModified":"2019-09-12T00:00:00-05:00","datePublished":"2019-09-12T00:00:00-05:00","url":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/09/12/packaging-a-classification-model-as-a-web-app.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/09/12/packaging-a-classification-model-as-a-web-app.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/datasciencecastnet_blog/assets/main.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml" title="fastpages" />
+
+  <script>
+  function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+  window.onload = wrap_img;
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      // add link icon to anchor tags
+      var elem = document.querySelectorAll(".anchor-link")
+      elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+      // remove paragraph tags in rendered toc (happens from notebooks)
+      var toctags = document.querySelectorAll(".toc-entry")
+      toctags.forEach(e => (e.firstElementChild.innerText = e.firstElementChild.innerText.replace('¶', '')))
+    });
+  </script>
+</head><body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/datasciencecastnet_blog/">fastpages</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/datasciencecastnet_blog/about/">About Me</a><a class="page-link" href="/datasciencecastnet_blog/search/">Search</a><a class="page-link" href="/datasciencecastnet_blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Packaging a classification model as a web app</h1><p class="post-meta post-meta-title"><time class="dt-published" datetime="2019-09-12T00:00:00-05:00" itemprop="datePublished">
+        Sep 12, 2019
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      2 min read
+    
+</span></p>
+
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><a href="https://zebra-vs-elephant.onrender.com"><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-13-03-18.png?w=1024" alt="" /></a></p>
+
+<p>My shiny new web app, available <a href="https://zebra-vs-elephant.onrender.com">here</a></p>
+
+<p>In my <a href="https://datasciencecastnet.home.blog/2019/09/06/pothole-detection-aka-johno-tries-fastai/">previous post</a> I introduced fastai, and used it to identify images with potholes. Since then, I’ve applied the same basic approach to the <a href="https://zindi.africa/competitions/sbtic-animal-classification">Standard Bank Tech Impact Challenge: Animal classification</a> with pretty decent results. A first, rough model was able to score 97% accuracy thanks to the magic of transfer learning, and by unfreezing the inner layers and re-training with a lower learning rate I was able to up the accuracy to over 99% for this binary classification problem. It still blows my mind how good these networks are at computer vision.</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-11-36-03.png?w=840" alt="" /></p>
+
+<p>Zebra or Elephant?</p>
+
+<p>This was exciting and fun. But I wanted to share the result, and my peer group aren’t all that familiar with log-loss scores. How could I get the point across and communicate what this means? Time to deploy this model as a web application :)</p>
+
+<h2 id="exporting-the-model-for-later-use">Exporting the model for later use</h2>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-16-32-31.png?w=399" alt="" /></p>
+
+<p>Final training step, saving weights and exporting to a file in my Google Drive</p>
+
+<p>I knew it was possible to save some of the model parameters with model.save(‘name’), but wasn’t sure how easy it would be to get a complete model definition. Turns out, enough people want this that you can simply call model.export(‘model_name’). So I set my model training again (I hadn’t saved last time) and started researching my next step while Google did my computing for me.</p>
+
+<h2 id="packaging-as-an-app">Packaging as an app</h2>
+
+<p>I expected this step to be rather laborious. I’d need to set up a basic app (planned to use Flask), get an environment with pytorch/fastai set up and deploy to a server or, just maybe, get it going on Heroku. But then I came across an exciting page in the fastai docs: ‘<a href="https://course.fast.ai/deployment_render.html">Deploying on Render</a>’. There are essentially 3 steps:<br />
+- Fork the example repository<br />
+- Edit the file to add a link to your exported model<br />
+- Sign up with Render and point it at your new GitHub repository.<br />
+Then hit deploy! You can read about the full process in the <a href="https://course.fast.ai/deployment_render.html">aforementioned tutorial</a>. Make sure your fastai is a recent version, and that you export the model (not just saving weights).</p>
+
+<p>The resultant app is available at <a href="https://zebra-vs-elephant.onrender.com">zebra-vs-elephant.onrender.com</a>. I used an earlier model with 97% accuracy (since I’m enjoying that top spot on the leaderboard ;)) but it’s still surprisingly accurate. It even get’s cartoons right!</p>
+
+<ul>
+  <li>
+    <p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-12-08-38.png?w=496" alt="" /></p>
+  </li>
+  <li>
+    <p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-12-08-57.png?w=403" alt="" /></p>
+  </li>
+  <li>
+    <p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-13-00-29.png?w=352" alt="" /></p>
+  </li>
+  <li>
+    <p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-13-00-43.png?w=414" alt="" /></p>
+  </li>
+  <li>
+    <p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/classify2.jpeg?w=270" alt="" /></p>
+  </li>
+  <li>
+    <p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/classify3.jpeg?w=281" alt="" /></p>
+  </li>
+</ul>
+
+<p>Please try it out and let me know what you think. It makes a best guess - see what it says for non-animals, or flatter your friends by classifying them as pachyderms.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>There seems to be a theme to my last few posts: “Things that sound hard are now easy!”. It’s an amazing world we live in. You can make something like this! It took 20 minutes, with me doing setup while the model trained! Comment here with links to your sandwich-or-not website, your am-I-awake app, your ‘ask-a-computer-if-this-dolphin-looks-happy’ business idea. Who knows, one of us might even make something useful :)</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-16-56-03.png?w=386" alt="" /></p>
+
+<p>Yes, that is apparently an elephant…</p>
+
+<p>UPDATE: I’ve suspended the service for now, but can re-start it if you’d like to try it. Reach out if that’s the case :)</p>
+
+  </div><a class="u-url" href="/datasciencecastnet_blog/2019/09/12/packaging-a-classification-model-as-a-web-app.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/datasciencecastnet_blog/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">fastpages</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">fastpages</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list">
+  <li><a href="https://github.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#github"></use></svg> <span class="username">johnowhitaker</span></a></li><li><a href="https://www.twitter.com/fastdotai"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">fastdotai</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

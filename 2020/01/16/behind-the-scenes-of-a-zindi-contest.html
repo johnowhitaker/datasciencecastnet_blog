@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/datasciencecastnet_blog/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Behind the scenes of a Zindi Contest | fastpages</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Behind the scenes of a Zindi Contest" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="An easy to use blogging platform with support for Jupyter Notebooks." />
+<meta property="og:description" content="An easy to use blogging platform with support for Jupyter Notebooks." />
+<link rel="canonical" href="https://johnowhitaker.github.io/datasciencecastnet_blog/2020/01/16/behind-the-scenes-of-a-zindi-contest.html" />
+<meta property="og:url" content="https://johnowhitaker.github.io/datasciencecastnet_blog/2020/01/16/behind-the-scenes-of-a-zindi-contest.html" />
+<meta property="og:site_name" content="fastpages" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-01-16T00:00:00-06:00" />
+<script type="application/ld+json">
+{"description":"An easy to use blogging platform with support for Jupyter Notebooks.","@type":"BlogPosting","headline":"Behind the scenes of a Zindi Contest","dateModified":"2020-01-16T00:00:00-06:00","datePublished":"2020-01-16T00:00:00-06:00","url":"https://johnowhitaker.github.io/datasciencecastnet_blog/2020/01/16/behind-the-scenes-of-a-zindi-contest.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://johnowhitaker.github.io/datasciencecastnet_blog/2020/01/16/behind-the-scenes-of-a-zindi-contest.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/datasciencecastnet_blog/assets/main.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml" title="fastpages" />
+
+  <script>
+  function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+  window.onload = wrap_img;
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      // add link icon to anchor tags
+      var elem = document.querySelectorAll(".anchor-link")
+      elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+      // remove paragraph tags in rendered toc (happens from notebooks)
+      var toctags = document.querySelectorAll(".toc-entry")
+      toctags.forEach(e => (e.firstElementChild.innerText = e.firstElementChild.innerText.replace('¶', '')))
+    });
+  </script>
+</head><body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/datasciencecastnet_blog/">fastpages</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/datasciencecastnet_blog/about/">About Me</a><a class="page-link" href="/datasciencecastnet_blog/search/">Search</a><a class="page-link" href="/datasciencecastnet_blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Behind the scenes of a Zindi Contest</h1><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-01-16T00:00:00-06:00" itemprop="datePublished">
+        Jan 16, 2020
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      7 min read
+    
+</span></p>
+
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><img src="https://datasciencecastnethome.files.wordpress.com/2020/01/barbet1_sonogram.jpg?w=1024" alt="" /></p>
+
+<p>User comments</p>
+
+<p>Ever wondered what goes into launching a data science competition? If so, this post is for you. I spent the last few days working on the Fowl Escapades: Southern African Bird Call Audio Identification Challenge on Zindi, and thought it would be fun to take you behind the scenes a little to show how it all came together.</p>
+
+<h2 id="step-1-inspiration">Step 1: Inspiration</h2>
+
+<p>Many competitions spring from an existing problem in need of a solution. For example, you may want a way to predict when your delivery will arrive based on weather, traffic conditions and the route your driver will take. In cases like this, an organization will reach out to Zindi with this problem statement, and move to stage 2 to see if it’s a viable competition idea. But this isn’t the only way competitions are born!</p>
+
+<p>Sometimes, we find a cool dataset that naturally lends itself to answering an interesting problem. Sometimes we start with an interesting problem, and go looking for data that could help find answers. And occasionally, we start with nothing but a passing question at the end of a meeting: ‘does anyone have any other competition ideas?’. This was the case here.</p>
+
+<p>I had been wanting to try my hand at something involving audio data. Since I happen to be an avid birder, I thought automatic birdsong identification would be an interesting topic. For this to work, we’d need bird calls - lot’s of them. Fortunately, after a bit of searching I found the star of this competition: <a href="https://www.xeno-canto.org/">https://www.xeno-canto.org/</a>. Hundreds of thousands of calls from all over the world! A competition idea was born.</p>
+
+<h2 id="step-2-show-me-the-data">Step 2: Show me the data</h2>
+
+<p>To run a competition, you need some data (unless you’re going to ask the participants to find it for themselves!). This must:</p>
+
+<ul>
+  <li>Be shareable. Anything confidential needs to be masked or removed, and you either need to own the data or have permission to use it. For the birdsong challenge, we used data that had CC licences but we still made sure to get permission from xeno-canto and check that we’re following all the licence terms (such as attribution and non-modification).</li>
+  <li>Be readable. This means no proprietary formats, variable definitions, sensible column names, and ideally a guide for reading in the data.</li>
+  <li>Be manageable. Some datasets are HUGE! It’s possible to organize contests around big datasets, but it’s worth thinking about how you expect participants to interact with the data. Remember - not everyone has fast internet or free storage.</li>
+  <li>Be useful. This isn’t always easy to judge, which is why doing data exploration and building a baseline model early on is important. But ideally, the data has some predictive power for the thing you’re trying to model!</li>
+</ul>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2020/01/screenshot-from-2020-01-15-14-49-59.png?w=1024" alt="" /></p>
+
+<p>Visualizing birdsongs</p>
+
+<p>By the time a dataset is released as part of a competition, it’s usually been through several stages of preparation. Let’s use the birdsong example and look at a few of there steps.</p>
+
+<ul>
+  <li><strong>Collection</strong>: For an organization, this would be an ongoing process. In our example case, this meant scraping the website for files that met our criteria (Southern African birds) and then downloading tens of thousands of mp3 files.</li>
+  <li><strong>Cleaning:</strong> A catch-all term for getting the data into a more usable form. This could be removing unnecessary data, getting rid of corrupted files, combining data from different sources…</li>
+  <li><strong>Splitting and Masking</strong>: We picked the top 40 species with the most example calls, and then split the files for each species into train and test sets, with 33% of the data kept for the test set. Since the file names often showed the bird name, we used <code class="language-plaintext highlighter-rouge">''.join(random.choices(string.ascii_uppercase + string.digits, k=6))</code> to generate random IDs. However you approach things, you’ll need to make sure that the answers aren’t deducible from the way you organize things (no sorting by bird species for the test set!)</li>
+  <li><strong>Checking</strong> <strong>(and re-checking, and re-checking):</strong> Making sure everything is in order before launch is vital - nothing is worse than trying to fix a problem with the data after people have started working on your competition! In the checking process I discovered that some mp3s had failed to download properly, and others were actually .wav files with .mp3 as the name. Luckily, I noticed this in time and could code up a fix before we went live.</li>
+</ul>
+
+<p>Many of these steps are the same when approaching a data science project for your own work. It’s still important to clean and check the data before launching into the modelling process, and masking is useful if you’ll need to share results or experiments without necessarily sharing all your secret info.</p>
+
+<h2 id="step-3-getting-ready-for-launch">Step 3: Getting ready for launch</h2>
+
+<p>Aside from getting the data ready, there are all sorts of extra little steps required to arrive at something you’re happy to share with the world. An incomplete list of TODOs for our latest launch:</p>
+
+<ul>
+  <li>Decide on a scoring metric. This will be informed by the type of problem you’re giving to participants. In this case, we were torn between accuracy and log loss, and ended up going with the latter. For other cases (eg imbalanced data), there are a host of metrics. Here’s a guide: https://machinelearningmastery.com/tour-of-evaluation-metrics-for-imbalanced-classification/</li>
+  <li>Put together an introduction and data description. What problem are we solving? What does the solution need to do? What does the training data look like? This will likely involve making some visualizations, doing a bit of research, finding some cool images to go with your topic…</li>
+  <li>Social media. This isn’t part of my job, but I gather that there is all sorts of planning for how to let people know about the cool new thing we’re putting out into the world :)</li>
+  <li>Tutorials. Not essential, but I feel that giving participants a way to get started lowers the barriers to entry and helps to get more novices into the field. Which is why, as is becoming my habit, I put together a starter notebook to share as soon as the contest launches.</li>
+</ul>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2020/01/screenshot-from-2020-01-16-14-08-14.png?w=879" alt="" /></p>
+
+<p>A confusion matrix - one way to quickly see how well a classification algorithm is working. (from the starter notebook)</p>
+
+<ul>
+  <li>Baseline/benchmark. This is something I like to do as early as possible in the process. I’ll grab the data, do the minimal cleaning required, run it through some of my favorite models and see how things go. This is nice in that it gives us an idea of what a ‘good’ score is, and whether the challenge is even doable. When a client is involved, this is especially useful for convincing them that a competition is a good idea - if I can get something that’s almost good enough, imagine what hundreds of people working for prize money will come up with! If there’s interest in my approach for a quick baseline, let me know and I may do a post about it.</li>
+  <li>Names, cover images, did you check the data???, looking at cool birds, teaser posts on twitter, frantic scrambles to upload files on bad internet, overlaying a sonogram on one of my bird photos… All sorts of fun :)</li>
+</ul>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2020/01/screenshot-from-2020-01-16-11-26-21-1.png?w=635" alt="" /></p>
+
+<p>Fine-tuning the benchmark model</p>
+
+<p>I could add lots more. I’ve worked on quite a few contests with the Zindi team, but usually I’m just part of the data cleaning and modelling steps. I’ve had such a ball moving this one from start to finish alongside the rest of the team, and I really appreciate all the hard work they do to keep us DS peeps entertained!</p>
+
+<h2 id="try-it-yourself">Try it yourself!</h2>
+
+<p>I hope this has been interesting. As I said, this whole process has been a blast. So if you’re sitting on some data, or know of a cool dataset, why not reach out and host a competition? You might even convince them to let you name it something almost as fun as ‘Fowl Escapades’. :)</p>
+
+  </div><a class="u-url" href="/datasciencecastnet_blog/2020/01/16/behind-the-scenes-of-a-zindi-contest.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/datasciencecastnet_blog/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">fastpages</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">fastpages</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list">
+  <li><a href="https://github.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#github"></use></svg> <span class="username">johnowhitaker</span></a></li><li><a href="https://www.twitter.com/fastdotai"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">fastdotai</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

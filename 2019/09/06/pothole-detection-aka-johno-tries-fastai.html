@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/datasciencecastnet_blog/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Pothole Detection (aka Johno tries fastai) | fastpages</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Pothole Detection (aka Johno tries fastai)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This week saw folks from all over the AI space converge in Cape Town for the AI Expo. The conference was inspiring, and I had a great time chatting to all sorts of interesting people. There were so many different things happening (which I’m not going to cover here), but the one that led to this post was a hackathon run by Zindi for their most recent Knowledge competition: the MIIA Pothole Image Classification Challenge. This post will cover the basic approach used by many entrants (thanks to Jan Marais’ excellent starting notebook) and how I improved on it with a few tweaks. Let’s dive in." />
+<meta property="og:description" content="This week saw folks from all over the AI space converge in Cape Town for the AI Expo. The conference was inspiring, and I had a great time chatting to all sorts of interesting people. There were so many different things happening (which I’m not going to cover here), but the one that led to this post was a hackathon run by Zindi for their most recent Knowledge competition: the MIIA Pothole Image Classification Challenge. This post will cover the basic approach used by many entrants (thanks to Jan Marais’ excellent starting notebook) and how I improved on it with a few tweaks. Let’s dive in." />
+<link rel="canonical" href="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/09/06/pothole-detection-aka-johno-tries-fastai.html" />
+<meta property="og:url" content="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/09/06/pothole-detection-aka-johno-tries-fastai.html" />
+<meta property="og:site_name" content="fastpages" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-09-06T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"This week saw folks from all over the AI space converge in Cape Town for the AI Expo. The conference was inspiring, and I had a great time chatting to all sorts of interesting people. There were so many different things happening (which I’m not going to cover here), but the one that led to this post was a hackathon run by Zindi for their most recent Knowledge competition: the MIIA Pothole Image Classification Challenge. This post will cover the basic approach used by many entrants (thanks to Jan Marais’ excellent starting notebook) and how I improved on it with a few tweaks. Let’s dive in.","@type":"BlogPosting","headline":"Pothole Detection (aka Johno tries fastai)","dateModified":"2019-09-06T00:00:00-05:00","datePublished":"2019-09-06T00:00:00-05:00","url":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/09/06/pothole-detection-aka-johno-tries-fastai.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/09/06/pothole-detection-aka-johno-tries-fastai.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/datasciencecastnet_blog/assets/main.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml" title="fastpages" />
+
+  <script>
+  function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+  window.onload = wrap_img;
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      // add link icon to anchor tags
+      var elem = document.querySelectorAll(".anchor-link")
+      elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+      // remove paragraph tags in rendered toc (happens from notebooks)
+      var toctags = document.querySelectorAll(".toc-entry")
+      toctags.forEach(e => (e.firstElementChild.innerText = e.firstElementChild.innerText.replace('¶', '')))
+    });
+  </script>
+</head><body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/datasciencecastnet_blog/">fastpages</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/datasciencecastnet_blog/about/">About Me</a><a class="page-link" href="/datasciencecastnet_blog/search/">Search</a><a class="page-link" href="/datasciencecastnet_blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Pothole Detection (aka Johno tries fastai)</h1><p class="post-meta post-meta-title"><time class="dt-published" datetime="2019-09-06T00:00:00-05:00" itemprop="datePublished">
+        Sep 6, 2019
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      4 min read
+    
+</span></p>
+
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>This week saw folks from all over the AI space converge in Cape Town for the AI Expo. The conference was inspiring, and I had a great time chatting to all sorts of interesting people. There were so many different things happening (which I’m not going to cover here), but the one that led to this post was a hackathon run by Zindi for their most recent Knowledge competition: the <a href="https://zindi.africa/competitions/miia-pothole-image-classification-challenge">MIIA Pothole Image Classification Challenge</a>. This post will cover the basic approach used by many entrants (thanks to Jan Marais’ excellent starting notebook) and how I improved on it with a few tweaks. Let’s dive in.</p>
+
+<h2 id="the-challenge">The Challenge</h2>
+
+<p>The dataset consists of images taken from behind the dashboard of a car. Some images contain potholes, some don’t - the goal is to correctly discern between the two classes. Some example pictures:</p>
+
+<ul>
+  <li>
+    <p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/afgodmvdulkmncm.jpg?w=800" alt="" /></p>
+  </li>
+  <li>
+    <p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/afihpmcypxahscw.jpg?w=800" alt="" /></p>
+  </li>
+  <li>
+    <p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/afwgvfetkbovxyw.jpg?w=800" alt="" /></p>
+  </li>
+  <li>
+    <p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/agagvuntihgxtfg.jpg?w=800" alt="" /></p>
+  </li>
+  <li>
+    <p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/aggttmhdaqmxmii.jpg?w=800" alt="" /></p>
+  </li>
+</ul>
+
+<p>Train and test data were collected on different days, and at first glance it looks like this will be a tough challenge! It looks like the camera is sometimes at different angles (maybe to get a better view of potholes) and the lighting changes from pic to pic.</p>
+
+<h2 id="the-first-solution">The first solution</h2>
+
+<p>Jan won a previous iteration of this hackathon, and was kind enough to share a starting notebook (available <a href="https://github.com/cortexlogic/PotHoleDetection">here</a>) with code to get up and running. You can view the notebook for the full code, but the steps are both simple and incredibly powerful:</p>
+
+<ul>
+  <li>Load the data into a ‘databunch’, containing both the labeled training data and the unlabeled test data. Using 15% of the training data as a validation set. The images are scaled to 224px squares and grouped into batches.</li>
+</ul>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-06-09-49-31.png?w=934" alt="" /></p>
+
+<p>The images are automatically warped randomly each time (to make the model more robust). This can be configured, but the default is pretty good.</p>
+
+<ul>
+  <li>Create a model: <code class="language-plaintext highlighter-rouge">learn = cnn_learner(data, resnet18, metrics=accuracy)</code>. This single line does a lot! It downloads a pre-trained network (resnet18) that has already been optimised for image classification. It reconfigures the output of that network to match the number of classes in our problem. It links the model to the data, freezes the weights of the internal layers, and gives us a model ready for re-training on our own classes.</li>
+  <li>Pick a learning rate, by calling <code class="language-plaintext highlighter-rouge">learn.lr_find()</code> followed by <code class="language-plaintext highlighter-rouge">learn.recorder.plot()</code> and picking one just before the graph bottoms out (OK, it’s more complicated than that but you can learn the arcane art of lr optimization elsewhere)</li>
+</ul>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-06-09-55-21.png?w=417" alt="" /></p>
+
+<p>*sucks thumb* A learning rate of 0.05 looks fine to me Bob.</p>
+
+<ul>
+  <li>Fit the model with <code class="language-plaintext highlighter-rouge">learn.fit_one_cycle(3, lr)</code> (Change number of epochs from 3 to taste), make predictions, submit!</li>
+</ul>
+
+<p>There is some extra glue code to format things correctly, find the data and so on. But this is in essence a full image classification workflow, in a deceptively easy package. Following the notebook results in a log-loss score of ~0.56, which was on par with the top few entries on the leaderboard at the start of the hackathon. In the starter notebook Jan gave some suggestions for ways to improve, and it looks like the winners tried a few of those. The best score of the day was Ivor (Congrats!!) with a log-loss of 0.46. Prizes were won, fun was had and we all learned how easy it can be to build an image classifier by standing on the shoulders of giants.</p>
+
+<h2 id="making-it-better">Making it better</h2>
+
+<p>As the day kicked off, I dropped a few hints about taking a look at the images themselves and seeing how one could get rid of unnecessary information. An obvious answer would be to crop the images a little - there aren’t potholes in the dashboard or the sky! I don’t think anyone tried it, so let’s give it a go now and see where we get. One <a href="https://stackoverflow.com/questions/14177744/how-does-perspective-transformation-work-in-pil/14178717">StackOverflow page</a> later, I had code to crop and warp an image:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/warped.png?w=1024" alt="" /></p>
+
+<p>Before and after warping. Now the road is the focus, and we’re not wasting effort on the periphery.</p>
+
+<p>I ran my code to warp all the images and store them in a new folder. Then I basically re-ran Jan’s starting notebook using the warped images (scaled to 200x200), trained for 5 epochs with a learning rate of 0.1, made predictions and…. <strong>0.367</strong> - straight to the top of the leader-board. The image warping and training took 1.5 hours on my poor little laptop CPU, which sort of limits how much iterating I’m willing to do. Fortunately, Google Colab gives a free GPU, cutting that time to a few minutes.</p>
+
+<h2 id="conclusions">Conclusions</h2>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-06-10-25-22.png?w=1024" alt="" /></p>
+
+<p>My time in the sun</p>
+
+<p>Thanks to Google’s compute, it didn’t take long to have an even better model. I leave it to you dear readers to figure out what tweaks you’ll need to hop into that top spot.</p>
+
+<p>My key takeaway from this is how easy it’s become to do this sort of thing. The other day I found code from 2014 where I was trying to spot things in an image with a kludged-together neural network. The difference between that and today’s exercise, using a network trained on millions of images and adapting it with ease thanks to a cool library and a great starting point… it just blows my mind how much progress has been made.</p>
+
+<p>Why are you still reading this? Go enter the competition already! :)</p>
+
+  </div><a class="u-url" href="/datasciencecastnet_blog/2019/09/06/pothole-detection-aka-johno-tries-fastai.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/datasciencecastnet_blog/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">fastpages</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">fastpages</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list">
+  <li><a href="https://github.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#github"></use></svg> <span class="username">johnowhitaker</span></a></li><li><a href="https://www.twitter.com/fastdotai"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">fastdotai</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

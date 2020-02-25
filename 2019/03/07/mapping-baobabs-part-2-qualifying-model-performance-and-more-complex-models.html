@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/datasciencecastnet_blog/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Recap and Following Along | fastpages</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Recap and Following Along" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The last post looked at creating a simple linear model to predict the density of baobab trees across Zimbabwe. In this post, we’ll try to quantify how accurate the predictions are and then see if we can make them even better. Since we’ll want to try all kinds of models, we’ll take a break from Google Earth Engine and use Python (with scikit-learn) to play with some concepts before taking our final model back into GEE again." />
+<meta property="og:description" content="The last post looked at creating a simple linear model to predict the density of baobab trees across Zimbabwe. In this post, we’ll try to quantify how accurate the predictions are and then see if we can make them even better. Since we’ll want to try all kinds of models, we’ll take a break from Google Earth Engine and use Python (with scikit-learn) to play with some concepts before taking our final model back into GEE again." />
+<link rel="canonical" href="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/03/07/mapping-baobabs-part-2-qualifying-model-performance-and-more-complex-models.html" />
+<meta property="og:url" content="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/03/07/mapping-baobabs-part-2-qualifying-model-performance-and-more-complex-models.html" />
+<meta property="og:site_name" content="fastpages" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-03-07T00:00:00-06:00" />
+<script type="application/ld+json">
+{"description":"The last post looked at creating a simple linear model to predict the density of baobab trees across Zimbabwe. In this post, we’ll try to quantify how accurate the predictions are and then see if we can make them even better. Since we’ll want to try all kinds of models, we’ll take a break from Google Earth Engine and use Python (with scikit-learn) to play with some concepts before taking our final model back into GEE again.","@type":"BlogPosting","headline":"Recap and Following Along","dateModified":"2019-03-07T00:00:00-06:00","datePublished":"2019-03-07T00:00:00-06:00","url":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/03/07/mapping-baobabs-part-2-qualifying-model-performance-and-more-complex-models.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/03/07/mapping-baobabs-part-2-qualifying-model-performance-and-more-complex-models.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/datasciencecastnet_blog/assets/main.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml" title="fastpages" />
+
+  <script>
+  function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+  window.onload = wrap_img;
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      // add link icon to anchor tags
+      var elem = document.querySelectorAll(".anchor-link")
+      elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+      // remove paragraph tags in rendered toc (happens from notebooks)
+      var toctags = document.querySelectorAll(".toc-entry")
+      toctags.forEach(e => (e.firstElementChild.innerText = e.firstElementChild.innerText.replace('¶', '')))
+    });
+  </script>
+</head><body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/datasciencecastnet_blog/">fastpages</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/datasciencecastnet_blog/about/">About Me</a><a class="page-link" href="/datasciencecastnet_blog/search/">Search</a><a class="page-link" href="/datasciencecastnet_blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Recap and Following Along</h1><p class="post-meta post-meta-title"><time class="dt-published" datetime="2019-03-07T00:00:00-06:00" itemprop="datePublished">
+        Mar 7, 2019
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      9 min read
+    
+</span></p>
+
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><a href="https://datasciencecastnet.home.blog/2019/02/15/mapping-baobabs-part-1-modelling-the-density-of-baobab-trees-in-zimbabwe-with-a-linear-model-in-gee/">The last post</a> looked at creating a simple linear model to predict the density of baobab trees across Zimbabwe. In this post, we’ll try to quantify how accurate the predictions are and then see if we can make them even better. Since we’ll want to try all kinds of models, we’ll take a break from Google Earth Engine and use Python (with scikit-learn) to play with some concepts before taking our final model back into GEE again.</p>
+
+<p>I’ll be working in a Jupyter notebook. This gives an interactive environment, perfect for trying out ideas and experimenting. If you’d like to follow along, I’ve uploaded the data and a complete notebook <here>. It goes much deeper than I'm able to in blog form - consider this post a summary rather than a comprehensive explanation of the topics involved.</here></p>
+
+<h2 id="loading-the-data">Loading the data</h2>
+
+<p>I’m using a library called pandas to load the training data (which we made to train the model in GEE) into a data structure called a DataFrame. Think of it as a spreadsheet, with columns representing the input variables (altitude, rainfall etc) and the output variable that we intend to model (in this case, tree density).</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/03/screenshot-from-2019-03-06-18-06-45.png" alt="" /></p>
+
+<p>Loading the data into a pandas DataFrame</p>
+
+<h2 id="model-performance">Model Performance</h2>
+
+<p>We need ways of gauging model performance so that we can decide how reliable the predictions are or choose between two models. An easy way to do this is to hold back some of the training data and see how well the model performs with it. We train a model with, say, 80% of our data and then make predictions on the remaining 20%. The closer the predictions are to the true values, the better the model has done. Let’s see an example:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/03/screenshot-from-2019-03-06-18-12-08.png" alt="" /></p>
+
+<p>The data has been split into training and test sets. X represents the inputs to the model and y the desired outputs. So here, we train the model with X-train and y_train and then see how well it does on the unseen test data. But hang on, what does model.score() even do?</p>
+
+<p>The score shown is known as the ‘R-Squared Score’. It is a measure of how well the model explains the variance in the output variable. Scores closer to 1 are better. We’ll use this going forward, but it isn’t very easy to understand (read more <a href="http://blog.minitab.com/blog/adventures-in-statistics-2/regression-analysis-how-do-i-interpret-r-squared-and-assess-the-goodness-of-fit">here</a>). A quick way to get a more intuitive understanding of how well a model does, I like to plot the models predictions vs the actual figures. An ideal model would predict the outputs 100% correctly, resulting in a straight line (y=x). The closer to this ideal we get, the better our model is. Here we go:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/03/screenshot-from-2019-03-06-18-21-00.png" alt="" /></p>
+
+<p>Hmm, that’s not much like a straight line. But there is some relation - an encouraging sign. Also, the X axis (actual densities) seems to be appearing in increments of 25 - what’s up with that? Well, the data is split into very small plots (4ha each). In an area where the baobab density is 50 trees per square km, one plot might have 2 trees (giving a density of 50 trees/km^2), another might have none (density=0) and a third might have 5 (density=125). To smooth things out, we can clump adjacent plots together. This will give us fewer, larger plots, each with a better density figure. The code for this is in the accompanying notebook. Repeating the scoring process with this new input data, we get the following:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/03/screenshot-from-2019-03-06-18-25-18.png" alt="" /></p>
+
+<p>Better, and the score has improved. But still not great - for example, the model predicts a density of -100 trees/km^2 in some places. However, this gives us a starting point.</p>
+
+<p>Using a single test/train split gives an idea of performance, but we can get more accurate scores by doing multiple splits (look up cross-validation for more info). It’s also important to think about HOW we split. Splitting randomly might be fine in some cases, but here the data was collected as we drove along roads. Having test points right next to training samples means the model can sometimes make a good guess, but we want to know how well it will perform in new areas, not just along roads we’ve sampled. A better approach is to split the data into sections - each represents a new area with different conditions, and more accurately represents the challenge. Going forward and looking at new models, I’ll record the score for both cases in CV (random) and CV (non-radom) respectively. More info in the notebook and a future post. I’ll also show scores with both the original training data and the resampled data (larger plots) for comparison.</p>
+
+<p>Final bit in this section: let’s clear our heads by getting another measure of performance. Imaging we’ve driven 80% of the roads, and want to predict how many baobabs we’ll see on the final stretch. We’ll do it for this model (and all the following models) and compare:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/03/screenshot-from-2019-03-07-15-24-39.png" alt="" /></p>
+
+<p>Quite the error!</p>
+
+<p>The summary score for the linear model:<br />
+Random split: 0.169 (train), 0.152 (test)<br />
+Sequential Split: 0.172 (train), -0.549 (test)<br />
+And Re-sampled plots<br />
+Random split: 0.257 (train), 0.213 (test)<br />
+Sequential Split: 0.262 (train), -1.119 (test)</p>
+
+<h2 id="adding-polynomial-features">Adding Polynomial Features</h2>
+
+<p>The linear model essentially fits a set of straight lines to the data. density = a*altitude + b*temperature +… . This doesn’t work when more complicated relationships are at play. To arrive at a model that can fit more complex curves, we can add polynomial features and re-run the line fitting process. This lets us more accurately describe curves (y = 0.3x + 0.2x^2 for example). There is an excellent write-up of polynomial regression on <a href="https://towardsdatascience.com/polynomial-regression-bbe8b9d97491">towardsdatascience.com</a> (which also has excellent resources on linear regression and other types of modelling with scikit-learn).</p>
+
+<p>Adding quadratic features (altitude^2 etc) gives a better R^2 score for a random split of 0.22, up from ~0.15 for Simple Linear Regression. Adding cubic features gives a further boost to 0.26. However, both models do even worse when the data is split sequentially - in other words, these models don’t generalize as well.</p>
+
+<h2 id="decision-trees">Decision Trees</h2>
+
+<p>We could keep on refining the simple models above, adding regularization parameters to help them generalize better, for example. But let’s move on and try a new kind of model - a decision tree. This post is already getting long, so I’ll leave an <a href="https://towardsdatascience.com/everything-you-need-to-know-about-decision-trees-8fcd68ecaa71">explanation</a> of decision trees to someone else. Suffice to say that decision tree methods give a series of true/false splits that can be followed to get a prediction for a given set of inputs. For example, a simple (depth=2) tree predicting the baobab density looks like the following:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/03/screenshot-from-2019-03-07-14-53-52.png" alt="" /></p>
+
+<p>We can set how complex we want the decision tree to be by changing the max_depth parameter. Too simple, and we don’t account for the trends in the data. Too complex, and we ‘overfit’, reducing our model’s ability to generalize by fitting noise in our training data. We can make trees of different depth, and see how this affects the score. Observe the following two graphs:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/03/max_depth_score.png" alt="" /></p>
+
+<p>Model score with varying max_depth parameter</p>
+
+<p>More complex models do better but are worse at generalizing. Since we don’t see much of an improvement in score for randomly split data above a depth of 10, and beyond that, the score on unseen data (when we split the data sequentially) gets significantly worse, a max depth of ~10 would be a reasonable parameter choice.</p>
+
+<p>Comparing the prediction for the last 20% of the data (as we did with the first linear model), we see that this gives a much closer estimate:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/03/screenshot-from-2019-03-07-15-24-47.png" alt="" /></p>
+
+<p>Prediction of the total within 15%.</p>
+
+<h2 id="random-forests">Random Forests</h2>
+
+<p>Random forests are a great example of the value of ensemble modelling. By creating a set of different decision trees, each of which does a mediocre job of making predictions, and then averaging the predictions to weed out extreme errors, they arrive at a more probable prediction. There is more to it than that, but let’s just try a couple out and see how they do:</p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/03/screenshot-from-2019-03-07-15-13-13.png" alt="" /></p>
+
+<h2 id="results">Results</h2>
+
+<h2 id="exporting-decision-trees-for-use-in-google-earth">Exporting Decision Trees for use in Google Earth</h2>
+
+<p>Our best model was used Random Forest Regression (which could be further improved with some extra tweaks), and this is what I’ve used previously for some Species Distribution Modelling tasks. However, Google Earth Engine doesn’t yet have support for doing regression (not classification) with random forests. A reasonable second place is Decision Trees, which have the added bonus of being computationally cheap - important when you’re working with gigabytes of data. We’ll export our best performing decision tree from python and load it using GEE’s <strong>ee.Classifier.decisionTree(),</strong> which takes in a string describing the tree.</p>
+
+<p>I wrote a function to export a tree from scikit-learn into GEE’s format. Code here <add link=""> and example usage in GEE here <add link="">.</add></add></p>
+
+<p><img src="https://datasciencecastnethome.files.wordpress.com/2019/03/screenshot-from-2019-03-07-16-10-31.png" alt="" /></p>
+
+<p>The finished map doesn’t look as good as the smooth output of the linear model, but the predictions are more accurate.</p>
+
+<h2 id="where-next">Where Next?</h2>
+
+<p>At this point we’ve looked at model accuracy, chosen a better model and applied that model in Google Earth Engine. We know roughly how well it does in areas similar to those we sampled. But is it reliable elsewhere? Would you trust the predicted densities for France? The model says lots of trees, but the French say il n’y a pas de baobabs and we both know who is right. To clear up these questions, we’ll spend the next post exploring the idea of model applicability, coverage of sample space and pitfalls with extrapolation. See you there!</p>
+
+<p>PS: This is still a draft but I’m hitting publish so that I can move on to the next one. I’ll refine it later. If you’ve hit a missing link or error write to me or wait a few days. Fortunately I don’t have readers yet. I hope I remember to come back to this.</p>
+
+  </div><a class="u-url" href="/datasciencecastnet_blog/2019/03/07/mapping-baobabs-part-2-qualifying-model-performance-and-more-complex-models.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/datasciencecastnet_blog/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">fastpages</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">fastpages</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list">
+  <li><a href="https://github.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#github"></use></svg> <span class="username">johnowhitaker</span></a></li><li><a href="https://www.twitter.com/fastdotai"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">fastdotai</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

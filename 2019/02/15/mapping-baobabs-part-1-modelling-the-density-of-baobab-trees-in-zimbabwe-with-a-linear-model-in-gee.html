@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/datasciencecastnet_blog/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Mapping Baobabs, Part 1 - Modelling the Density of Baobab Trees in Zimbabwe with a Linear Model in GEE | fastpages</title>
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Mapping Baobabs, Part 1 - Modelling the Density of Baobab Trees in Zimbabwe with a Linear Model in GEE" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This is the first in a multi-part series exploring Species Distribution Modelling (SDM) with the Google Earth Engine. In this post, we’ll take a look at the data we’ll be using, load up some environmental layers and create a simple linear regression model." />
+<meta property="og:description" content="This is the first in a multi-part series exploring Species Distribution Modelling (SDM) with the Google Earth Engine. In this post, we’ll take a look at the data we’ll be using, load up some environmental layers and create a simple linear regression model." />
+<link rel="canonical" href="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/02/15/mapping-baobabs-part-1-modelling-the-density-of-baobab-trees-in-zimbabwe-with-a-linear-model-in-gee.html" />
+<meta property="og:url" content="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/02/15/mapping-baobabs-part-1-modelling-the-density-of-baobab-trees-in-zimbabwe-with-a-linear-model-in-gee.html" />
+<meta property="og:site_name" content="fastpages" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-02-15T00:00:00-06:00" />
+<script type="application/ld+json">
+{"description":"This is the first in a multi-part series exploring Species Distribution Modelling (SDM) with the Google Earth Engine. In this post, we’ll take a look at the data we’ll be using, load up some environmental layers and create a simple linear regression model.","@type":"BlogPosting","headline":"Mapping Baobabs, Part 1 - Modelling the Density of Baobab Trees in Zimbabwe with a Linear Model in GEE","dateModified":"2019-02-15T00:00:00-06:00","datePublished":"2019-02-15T00:00:00-06:00","url":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/02/15/mapping-baobabs-part-1-modelling-the-density-of-baobab-trees-in-zimbabwe-with-a-linear-model-in-gee.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/02/15/mapping-baobabs-part-1-modelling-the-density-of-baobab-trees-in-zimbabwe-with-a-linear-model-in-gee.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/datasciencecastnet_blog/assets/main.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml" title="fastpages" />
+
+  <script>
+  function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+  }
+  window.onload = wrap_img;
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      // add link icon to anchor tags
+      var elem = document.querySelectorAll(".anchor-link")
+      elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+      // remove paragraph tags in rendered toc (happens from notebooks)
+      var toctags = document.querySelectorAll(".toc-entry")
+      toctags.forEach(e => (e.firstElementChild.innerText = e.firstElementChild.innerText.replace('¶', '')))
+    });
+  </script>
+</head><body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/datasciencecastnet_blog/">fastpages</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/datasciencecastnet_blog/about/">About Me</a><a class="page-link" href="/datasciencecastnet_blog/search/">Search</a><a class="page-link" href="/datasciencecastnet_blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Mapping Baobabs, Part 1 - Modelling the Density of Baobab Trees in Zimbabwe with a Linear Model in GEE</h1><p class="post-meta post-meta-title"><time class="dt-published" datetime="2019-02-15T00:00:00-06:00" itemprop="datePublished">
+        Feb 15, 2019
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      7 min read
+    
+</span></p>
+
+    
+
+    </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>This is the first in a multi-part series exploring Species Distribution Modelling (SDM) with the Google Earth Engine. In this post, we’ll take a look at the data we’ll be using, load up some environmental layers and create a simple linear regression model.</p>
+
+<h2 id="background">Background</h2>
+
+<h3 id="google-earth-engine">Google Earth Engine</h3>
+
+<p>Google Earth Engine (GEE) is an amazing tool for working with spatial data on a global scale. By writing some simple javascript, it’s possible to run computations on vast collections of image data thanks to the processing power hiding behind the scenes. Check out https://earthengine.google.com/ for more info.</p>
+
+<h3 id="the-tree">The Tree</h3>
+
+<p>The African Baobab (Adansonia digitata and Adansonia kilima [1]) is an important tree in all countries where it is found. Besides its iconic looks, it provides tasty fruit full of good nutrients [2], bark fibre for crafts [3], traditional medicine [2], shade and an extra source of income [4] in some of the driest and most marginalized communities. Commercialization of the fruit is on the rise, especially for the export market. This is largely due to the fruit’s status as a ‘superfruit’. It’s important that organizations looking to harvest the fruit for sale have good information about the tree population so that they can pick good locations, estimate productivity and make sure that they are not over-harvesting and damaging this incredible resource.</p>
+
+<p>In 2014, I was part of a team that set out to gather said information in Zimbabwe. We travelled all over the country, counting trees, assessing tree health, logging information about tree size and appearance and using questionnaires to find out more about how the trees were viewed and used by the communities who lived near them. This allowed us to produce a good map of the distribution within Zimbabwe, estimate potential yield in different areas and deliver a report on the overall health of the population. We also confirmed the presence of the newly discovered Adansonia kilima [5] - a second species of Baobab on mainland Africa that had only recently been described.</p>
+
+<p>For that project, mapping the density of baobab trees was a tough task. I had to source gigabytes of data (not easy with Zimbabwe’s internet infrastructure), write some custom code to slowly crunch the numbers, tie together my own scripts with add-ons to QGIS (mapping software) and wait days for models to run. As you’ll see in the next few posts, Google Earth Engine makes the job significantly easier.</p>
+
+<h3 id="the-data">The data</h3>
+
+<p>There are two main types of data used in SDM. One is occurrence data - this can be points or areas where a species is known to occur. This is useful for calculating the probability of occurrence and creating maps showing where a species might be found, but less useful if you are trying to estimate density. The second type is ‘count data’ - the number of frogs in 10m2 or the total number of sightings along a transect. With count data, one can begin to predict <strong>how many</strong> of something will be found at a given location.</p>
+
+<p>The data we collected in 2014 is count data - all the baobabs along road transects and walked transects were counted and their locations logged. The transects were subdivided into 200m by 200m plots, and each plot has an associated count - the number of baobab trees in that plot. There are 14,683 of these in the dataset, representing nearly 60 thousand hectares sampled. We could have subdivided the transects differently to get fewer, larger plots but we’ll leave that as a subject for a future post.</p>
+
+<h2 id="loading-input-layers">Loading input layers</h2>
+
+<h3 id="environmental-data">Environmental Data</h3>
+
+<p>Google Earth Engine has a vast amount of data available with a few clicks. We want to examine all the factors that could affect where a tree grows. You can go really deep here, but since this post is just a first rough pass we’ll grab some climate-related layers and altitude (the latter because every document on baobab mentions that it is important). You could try searching directly for things like temperature, rainfall etc, but conveniently an org [check] called Worldclim has put together 19 variables derived from climate data that they deem “biologically meaningful values”. These include temperature seasonality, max rainfall, etc. Search for ‘worldclim’ and select ‘Worldclim BIO Variables V1’, which will give you a description of the dataset and allow you to import the data. Hit ‘Import’ and give it a sensible name - it will appear at the top of your script.</p>
+
+<p><img src="https://lh4.googleusercontent.com/K4tObmeHxg9zT8g7GNNRJIPB98QNx4EhPFjK9eAe7kQIzVzdAx4QGE0iDmquzTFB4EXwbqVXnXnm7CJkdRO6xKKw3obaa9RuAIpIsTh7OiB_5C4cMvESw73ZHoRIgjnXVXmEDuIU" alt="" /></p>
+
+<p>Add a second import with some elevation data. Elevation data is available in up to 30m resolution, but since we’re working on a large scale and the climate data is 1km resolution, using 30m resolution elevation data is a little overkill, and will slow things down. “ETOPO1: Global 1 Arc-Minute Elevation” is a lower resolution image we can use, or you can resample the high-res layer (see part 3 of this series for examples).</p>
+
+<h2 id="sampling">Sampling</h2>
+
+<p>We need to create a training dataset that contains both the baobab density (from the count_data file) and the environmental layers (represented by bands in merged_image). Fortunately, GEE has a function to simplify this. We sample the image at each point:</p>
+
+<p>var training = merged.sampleRegions(cd);</p>
+
+<p>Training now contains a list of features. Each looks like this:</p>
+
+<p><img src="https://lh6.googleusercontent.com/TaR8mux_wW6dGmN-_HyozPw_LCZ16dn-AdsRy4WwHhkvMOoT1n9y4LFQUh-_pHfHDSrokKCCtu2B7_MFfFzoA15vJ2jWKoXqR0-di76GzatfXc1JHGiDTosZsW8xq3LHH6hAOL2u" alt="" /></p>
+
+<p>We can use this to train a model</p>
+
+<h2 id="creating-and-training-the-model">Creating and training the model</h2>
+
+<p>Google Earth Engine provides a variety of models for us to choose from. For this post, we’ll stick to a simple linear model, available via ee.Classifier.gmoLinearRegression. We create the model, set it to regression mode (since we’re predicting density, a continuous variable) and train it with our prepared training data:</p>
+
+<p><img src="https://lh5.googleusercontent.com/wq0O9md3_k4rp2t9dQf9DQo6LpGLDQeZB6gQV-FL5K6xO7kNMCv7N4YBWwIg5KVTghdbad-DUGJUUboAHrbkwmY99uGa-BaHFZVJtk6_zsq5cq-SnHrrEJguIa-D7qoPCs4pMM0h" alt="" /></p>
+
+<p>The model can now be applied to predict the density in different locations. We can use a different set of points and prepare them the way we did the training data, or we can simply apply the classifier to the whole image. The band names must match (see docs for details). Since we’ll use the merged image used for training, no further prep is needed:</p>
+
+<p>var classified = merged.classify(trained);</p>
+
+<p>Map.addLayer(classified);</p>
+
+<p>Tweaking the visualization parameters gives us our result:</p>
+
+<p><img src="https://lh3.googleusercontent.com/xNSy8gOOwJ1F1JmsVM2EFzeAr8n7JmijMHS4SB_rMlrKoJZ-JwtIdTe1VuFNyv9hgDX0G-mht2WgjCC9TuOYdcfC3o2nHhI6ncPRCZrBgh9fNqYLPx-ALXOq_tZsYcXy_Zr5FggZ" alt="" /></p>
+
+<p>The output can be saved as an asset or exported to Google Drive for later use.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>There are many improvements that could be made, but this model is already very useful. Within the study area, it is fairly accurate (we’ll examine this in a future post) and it shows where baobabs can be found, and where we should expect high densities. In the next few posts, we’ll examine some better models, quantify model accuracy, map model applicability (i.e. where the model can be expected to produce useful output), experiment with different sampling techniques and so on.</p>
+
+<p>If you have questions, please get in touch!</p>
+
+<p>You can see a full demo script at https://code.earthengine.google.com/3635e796d66d348c2d3a152430dc1142</p>
+
+<h2 id="references">References</h2>
+
+<p>[1] - Pettigrew, F.R.S., Jack, D., Bell, K.L., Bhagwandin, A., Grinan, E., Jillani, N., Meyer, J., Wabuyele, E. and Vickers, C.E., 2012. Morphology, ploidy and molecular phylogenetics reveal a new diploid species from Africa in the baobab genus Adansonia (Malvaceae: Bombacoideae). Taxon, 61(6), pp.1240-1250.</p>
+
+<p>[2] - Kamatou, G.P.P., Vermaak, I. and Viljoen, A.M., 2011. An updated review of Adansonia digitata: A commercially important African tree. South African Journal of Botany, 77(4), pp.908-919.</p>
+
+<p>[3] - Rahul, J., Jain, M.K., Singh, S.P., Kamal, R.K., Naz, A., Gupta, A.K. and Mrityunjay, S.K., 2015. Adansonia digitata L.(baobab): a review of traditional information and taxonomic description. Asian Pacific Journal of Tropical Biomedicine, 5(1), pp.79-84.</p>
+
+<p>[4] - Alao, J.S., Wakawa, L.D. and Ogori, A.F., Ecology, Economic Importance and Nutritional Potentials of Adansonia digitata (BAOBAB): A Prevalent Tree Species in Northern Nigeria.</p>
+
+<p>[5] - Douie, C., Whitaker, J. and Grundy, I., 2015. Verifying the presence of the newly discovered African baobab, Adansonia kilima, in Zimbabwe through morphological analysis. South African Journal of Botany, 100, pp.164-168.</p>
+
+  </div><a class="u-url" href="/datasciencecastnet_blog/2019/02/15/mapping-baobabs-part-1-modelling-the-density-of-baobab-trees-in-zimbabwe-with-a-linear-model-in-gee.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/datasciencecastnet_blog/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">fastpages</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">fastpages</li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list">
+  <li><a href="https://github.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#github"></use></svg> <span class="username">johnowhitaker</span></a></li><li><a href="https://www.twitter.com/fastdotai"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">fastdotai</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

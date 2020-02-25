@@ -9,13 +9,13 @@ I'm going to be working on a project that will ultimately require manually outli
 
 I recently encountered a project that already did a lot of the hard work tagging fields all over Africa. Their results (featured in today's [Data Glimpse post](https://datasciencecastnet.home.blog/2019/07/13/data-glimpse-cropland-and-settlement-maps-from-qed-ai/)) look great, but the training data used isn't published. Now, I could just use their published map, but I'm also interested in change over time, while their map is based solely on 2015 data. What if we train a new model on the output of their model? This isn't generally a great idea (since you're compounding errors) but it might be good enough for our purposes.
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/07/pred_vs_crop.jpeg)
+![](images/wordpress_export/2019/07/pred_vs_crop.jpeg)
 
 Satellite image (left) and my predicted cropland (right, in red)
 
 In Google Earth Engine (script available here), I created a composite image from Landsat 8 images taken in 2015, including NDVI, band values from a greenest-pixel composite and band values from late in the year (planting season for most crops). This is to be the input to out model. I then sampled 2500 points, recording the inputs (the bands of the composite image) and the desired output (the cropland probability made available by the qed.ai team). This data was used to train a random forest model (framing the task as a classification problem) and the predictions compared to the predictions from the QED data. The result: 99% accuracy.
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/07/screenshot-from-2019-07-13-08-35-11-1.png)
+![](images/wordpress_export/2019/07/screenshot-from-2019-07-13-08-35-11-1.png)
 
 Confusion matrix and accuracy
 
@@ -25,7 +25,7 @@ What does this accuracy figure mean? How is it so high? It's less astonishing wh
 
 The model takes landsat 8 image data as it's inputs. It was trained on 2015 data, but there is no reason why we can't make predictions based on other years, and see where these predictions differ from the 2015 ones. Subtracting two years' predictions gives a difference image, shown below for 2015 - 2018. Red indicated areas where cropland is predicted in 2018 and not 2015 (new cropland). Black and green are areas where the model predicts no change or less cropland in 2018.
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/07/screenshot-from-2019-07-13-08-21-44-2.png?w=1024)
+![](images/wordpress_export/2019/07/screenshot-from-2019-07-13-08-21-44-2.png?w=1024)
 
 Difference Image (2018). Potential new cropland shown in red.
 

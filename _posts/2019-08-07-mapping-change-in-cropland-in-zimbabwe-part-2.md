@@ -9,7 +9,7 @@ In [Part 1](https://datasciencecastnet.home.blog/2019/07/14/mapping-change-in-cr
 
 This time, we'll generate training data manually. For convenience, I'm changing the goalposts slightly: in this post, we'll be making a simple model to distinguish between open land (fields, grassland, bare earth) and woodland. In the area of interest, this pretty much covers all the bases. Collecting data is a simple but laborious process - examples of each class are outlines in Google Earth Engine and saved as two separate FeatureCollections:
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/08/screenshot-from-2019-08-07-10-12-26.png)
+![](images/wordpress_export/2019/08/screenshot-from-2019-08-07-10-12-26.png)
 
 Some open areas (red) and woodland (green) manually outlined for training.
 
@@ -17,7 +17,7 @@ Some open areas (red) and woodland (green) manually outlined for training.
 
 We've covered modelling in GEE before, so I won't go into details here. Sentinel 2 imagery is used, and I pretty much followed the [docs](https://developers.google.com/earth-engine/classification) to create a classifier and then apply it to the input image over the whole area. The model is fairly accurate, and a quick visual double-check confirms that it's doing a good job of making the open areas:
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/08/masked_vs_not.png)
+![](images/wordpress_export/2019/08/masked_vs_not.png)
 
 Open area masked (left) vs input image (right)
 
@@ -25,13 +25,13 @@ Open area masked (left) vs input image (right)
 
 By choosing fields and wooded areas for training that have been present for decades, we can use the same training data to build models on imagery from different years. To track change in open land area, we can make a prediction for each year and sum the area that is classified as 'open land' with the following code snippet:
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/08/screenshot-from-2019-08-07-10-15-58.png)
+![](images/wordpress_export/2019/08/screenshot-from-2019-08-07-10-15-58.png)
 
 Getting the total area classified as open land over an ROI (ward 8)
 
 For my ROI, the total open land trends steadily upwards. For dates earlier than 2015, I used Lnadsat 7 imagery as the input. From 2015 to 2018, Sentinel 2 Imagery was used as well as Landsat for comparison. In some years (2010 and 2018/19) there were enough cloudy images that I combined two years for the estimate. Some of the Landsat 7 imagery isn't the best quality, and there are some issues with this approach that mean I wouldn't trust the figures to be incredibly accurate. BUT, we've accomplished our goal: the figures show the change in land cover over time:
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/08/screenshot-from-2019-08-07-10-28-28.png)
+![](images/wordpress_export/2019/08/screenshot-from-2019-08-07-10-28-28.png)
 
 ## Conclusion
 

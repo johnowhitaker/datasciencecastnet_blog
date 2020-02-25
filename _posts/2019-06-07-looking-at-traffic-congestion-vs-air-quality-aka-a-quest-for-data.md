@@ -9,7 +9,7 @@ I'm currently on a mission to explore the different datasets available publicly,
 
 [Uber movement](https://movement.uber.com) makes various data from millions of Uber rides available to the public. However, it isn't particularly easy to estimate traffic from the available data. Daily average travel times are only available for a single, selected route at a time, and for a maximum of three months per download. The restrictions make sense, but are a little inconvenient. To get around this, I chose one route through the centre of my city of interest and decided to use this as a rough measure - longer travel times would hopefully translate to days with heavier traffic. To get better estimates, one could repeat this for many different routes to improve the metric.
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/06/screenshot-from-2019-06-07-15-24-46.png)
+![](images/wordpress_export/2019/06/screenshot-from-2019-06-07-15-24-46.png)
 
 Average uber ride travel times - a rough proxy for traffic conditions?
 
@@ -17,13 +17,13 @@ I initially selected Nairobi for my investigation, since Uber data is available 
 
 I chose Pittsburgh, since it seemed as good a place as any when I looked at the list of cities with Uber Movement data. As before, I picked a route through town and downloaded the average daily travel times from movement.uber.com. To get the air quality data, I turned to Google Bigquery. The following code pulls the relevant data from the giant (>1GB) dataset:
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/06/screenshot-from-2019-06-07-15-31-20.png)
+![](images/wordpress_export/2019/06/screenshot-from-2019-06-07-15-31-20.png)
 
 Querying the epa historical air quality dataset
 
 The resultant 1MB csv can be downloaded and loaded into a pandas dataframe for analysis. Combining it with the uber data meant it was time for the moment of truth: is there a correlation between travel times (as a measure of traffic intensity) and air quality? Let's plot the two:
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/06/screenshot-from-2019-06-07-15-35-37.png)
+![](images/wordpress_export/2019/06/screenshot-from-2019-06-07-15-35-37.png)
 
 Air quality (X axis) vs mean travel times (y axis)
 
@@ -33,17 +33,17 @@ If anything, there was a tiny negative correlation. But the main issue is the qu
 
 I plan on looking deeper into Uber Movement data in the future, but for this quick project I wanted a better source of traffic data to answer my initial question. Fortunately, the wonderful City of Chicago has a treasure-trove of data available: [](https://data.cityofchicago.org/) https://data.cityofchicago.org/. Their historical traffic data comes from sensor-laden busses tracking traffic speed. The dataset is fairly large, so to avoid taxing my Zimbabwean internet connection I used Google Colab to download the data and upload it to BigQuery for later. I could also start playing with the data in Colab's notebook interface:
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-24-15-14-33.png)
+![](images/wordpress_export/2019/05/screenshot-from-2019-05-24-15-14-33.png)
 
 Loading the data into pandas with Google Colab
 
 A description of the dataset from the [data portal](https://data.cityofchicago.org/Transportation/Chicago-Traffic-Tracker-Historical-Congestion-Esti/emtn-qqdi):
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-24-15-12-48.png)
+![](images/wordpress_export/2019/05/screenshot-from-2019-05-24-15-12-48.png)
 
 I processed the data to get an average speed over all regions for each day. This, combined with the historical air quality measurements from the EPA database, gave me the data I desired:
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/06/screenshot-from-2019-06-07-15-51-30.png)
+![](images/wordpress_export/2019/06/screenshot-from-2019-06-07-15-51-30.png)
 
 Analysing the data
 

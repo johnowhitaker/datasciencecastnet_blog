@@ -88,7 +88,7 @@ At this point, we're ready to start asking the questions I had thought of as we 
 
 We make a new player, which takes a number as an argument. If the temp score is below this threshold, it rolls again with three dice (as before). If the score is above the threshold, it banks the score instead. AllRulesThreshForThree is born, and averages closer to 790 when it banks scores above 500. Plotting the average score for different thresholds, we see that anywhere between 400 and 600 does best in this case:
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/01/allt4t_threshvsscore.png)
+![](images/wordpress_export/2019/01/allt4t_threshvsscore.png)
 
 Figure 1 - Performance with different thresholds for rolling with three dice left
 

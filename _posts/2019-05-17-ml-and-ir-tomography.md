@@ -15,13 +15,13 @@ I built some tools that let me simulate these kinds of arrangements, and did som
 
 I tested out these arrangements in the real world by building some fixed arrangements, and by using a 3D printed scanner to position an LED and a phototransistor (PT from now on) in different locations to slowly simulate having many detectors and emitters. Using light as opposed to X-rays means cheap emitters and detectors, and of course much less danger.
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/05/ring_of_8_kapton.jpeg)
+![](images/wordpress_export/2019/05/ring_of_8_kapton.jpeg)
 
 A ring of 8 LEDs and 8 PTs. Larger rings were also constructed, and the scanner could simulate arrangements of >1000 sensors and emitters.
 
 By taking a set of readings, we can start to estimate how much light travels along different paths, and thus build up an image of whatever is being scanned. This works well with lots of readings from the scanner:
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-17-37.png)
+![](images/wordpress_export/2019/05/screenshot-from-2019-05-17-12-17-37.png)
 
 A reconstructed image of some small nails. The scanner could resolve objects less than 1mm in size.
 
@@ -37,13 +37,13 @@ To answer the question "can machine learning be useful", I needed to pick a good
 4. Tune the model parameters. For example, try different values on 'gamma' (a regularisation parameter) for a Support Vector based classifier.
 5. Repeat for different types of model, and compare the scores
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-28-05.png)
+![](images/wordpress_export/2019/05/screenshot-from-2019-05-17-12-28-05.png)
 
 Choosing the optimum number of hidden layers for a Multi-Layer Perceptron model (Neural Network)
 
 For example, in the case of object classification, a neural network approach worked best (of the models tested):
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-27-48.png)
+![](images/wordpress_export/2019/05/screenshot-from-2019-05-17-12-27-48.png)
 
 Model scores on a classification task
 
@@ -53,7 +53,7 @@ Using the ring with 8 LEDs and 8 PTs, I'd place an object randomly within the ri
 
 Using the model selected according to the method in the previous section, I was able to achieve an accuracy of 85% (multi-class classification) or 97% (binary classification with only two objects) using 750 samples for training. More training data resulted in better accuracy.
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-36-52.png)
+![](images/wordpress_export/2019/05/screenshot-from-2019-05-17-12-36-52.png)
 
 Model performance with more training samples for multi-class classification (orange)  
 and binary classification (blue)
@@ -70,7 +70,7 @@ Gathering training data for position inference
 
 This results in a [dataset](https://github.com/johnowhitaker/CIRTS/blob/master/Pos_inf_r14/reads_500.csv) consisting of a set of readings followed by an X and Y position. The goal is to train a model to predict the position based on the readings. For the ring of 8, the model could predict the location with an error of ~10% of the radius of the ring - approximately 7mm. For the ring of 14 (pictured above, and the source of the linked dataset), I was able to get the RMSE down to 1.6mm (despite the ring being larger) using the tricks from the next section. You can read more about this on my [hackaday.io](https://hackaday.io/project/162352-cirts-configurable-infra-red-tomography-systems) page.
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-51-05.png)
+![](images/wordpress_export/2019/05/screenshot-from-2019-05-17-12-51-05.png)
 
 Playing a game with the sensor ring.
 
@@ -82,7 +82,7 @@ One downside of this approach is that it takes many training samples to get a mo
 
 Using purely simulated data resulted in some spectacularly bad results, but if a model was 'primed' with even a small real-world training dataset (say, 50 samples) then adding simulated data could improve the model and make it more robust. I'll let the results speak for themselves:
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/05/screenshot-from-2019-05-17-12-55-41.png)
+![](images/wordpress_export/2019/05/screenshot-from-2019-05-17-12-55-41.png)
 
 Model performance for position inference with and without simulated data for training
 

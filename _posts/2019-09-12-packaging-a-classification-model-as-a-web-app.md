@@ -3,13 +3,13 @@ title: "Packaging a classification model as a web app"
 date: "2019-09-12"
 ---
 
-[![](https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-13-03-18.png?w=1024)](https://zebra-vs-elephant.onrender.com)
+[![](images/wordpress_export/2019/09/screenshot-from-2019-09-12-13-03-18.png?w=1024)](https://zebra-vs-elephant.onrender.com)
 
 My shiny new web app, available [here](https://zebra-vs-elephant.onrender.com)
 
 In my [previous post](https://datasciencecastnet.home.blog/2019/09/06/pothole-detection-aka-johno-tries-fastai/) I introduced fastai, and used it to identify images with potholes. Since then, I've applied the same basic approach to the [Standard Bank Tech Impact Challenge: Animal classification](https://zindi.africa/competitions/sbtic-animal-classification) with pretty decent results. A first, rough model was able to score 97% accuracy thanks to the magic of transfer learning, and by unfreezing the inner layers and re-training with a lower learning rate I was able to up the accuracy to over 99% for this binary classification problem. It still blows my mind how good these networks are at computer vision.
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-11-36-03.png?w=840)
+![](images/wordpress_export/2019/09/screenshot-from-2019-09-12-11-36-03.png?w=840)
 
 Zebra or Elephant?
 
@@ -17,7 +17,7 @@ This was exciting and fun. But I wanted to share the result, and my peer group a
 
 ## Exporting the model for later use
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-16-32-31.png?w=399)
+![](images/wordpress_export/2019/09/screenshot-from-2019-09-12-16-32-31.png?w=399)
 
 Final training step, saving weights and exporting to a file in my Google Drive
 
@@ -33,17 +33,17 @@ Then hit deploy! You can read about the full process in the [aforementioned tuto
 
 The resultant app is available at [zebra-vs-elephant.onrender.com](https://zebra-vs-elephant.onrender.com). I used an earlier model with 97% accuracy (since I'm enjoying that top spot on the leaderboard ;)) but it's still surprisingly accurate. It even get's cartoons right!
 
-- ![](https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-12-08-38.png?w=496)
+- ![](images/wordpress_export/2019/09/screenshot-from-2019-09-12-12-08-38.png?w=496)
     
-- ![](https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-12-08-57.png?w=403)
+- ![](images/wordpress_export/2019/09/screenshot-from-2019-09-12-12-08-57.png?w=403)
     
-- ![](https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-13-00-29.png?w=352)
+- ![](images/wordpress_export/2019/09/screenshot-from-2019-09-12-13-00-29.png?w=352)
     
-- ![](https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-13-00-43.png?w=414)
+- ![](images/wordpress_export/2019/09/screenshot-from-2019-09-12-13-00-43.png?w=414)
     
-- ![](https://datasciencecastnethome.files.wordpress.com/2019/09/classify2.jpeg?w=270)
+- ![](images/wordpress_export/2019/09/classify2.jpeg?w=270)
     
-- ![](https://datasciencecastnethome.files.wordpress.com/2019/09/classify3.jpeg?w=281)
+- ![](images/wordpress_export/2019/09/classify3.jpeg?w=281)
     
 
 Please try it out and let me know what you think. It makes a best guess - see what it says for non-animals, or flatter your friends by classifying them as pachyderms.
@@ -52,7 +52,7 @@ Please try it out and let me know what you think. It makes a best guess - see wh
 
 There seems to be a theme to my last few posts: "Things that sound hard are now easy!". It's an amazing world we live in. You can make something like this! It took 20 minutes, with me doing setup while the model trained! Comment here with links to your sandwich-or-not website, your am-I-awake app, your 'ask-a-computer-if-this-dolphin-looks-happy' business idea. Who knows, one of us might even make something useful :)
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/09/screenshot-from-2019-09-12-16-56-03.png?w=386)
+![](images/wordpress_export/2019/09/screenshot-from-2019-09-12-16-56-03.png?w=386)
 
 Yes, that is apparently an elephant...
 

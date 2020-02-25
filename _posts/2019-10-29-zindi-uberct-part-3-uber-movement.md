@@ -3,7 +3,7 @@ title: "Zindi UberCT Part 3: Uber Movement"
 date: "2019-10-29"
 ---
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-29-10-46-36.png?w=1024)
+![](images/wordpress_export/2019/10/screenshot-from-2019-10-29-10-46-36.png?w=1024)
 
 Uber Movement has launched in Cape Town
 
@@ -11,20 +11,20 @@ Today, Uber Movement launched in Cape Town. This is good news, since it means mo
 
 ## Getting the data
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-29-10-08-52.png?w=1024)
+![](images/wordpress_export/2019/10/screenshot-from-2019-10-29-10-08-52.png?w=1024)
 
 My rough travel 'zones'
 
 Zindi provided some aggregated data from Uber movement at the start of the competition. This allows you to get the average travel time for a route, but not to see the daily travel times (it's broken down by quarter). But on the Uber Movement site, you can specify a start and end location and get up to three months of daily average travel times. This is what we'll be using.
 
-- ![](https://datasciencecastnethome.files.wordpress.com/2019/10/table.jpeg?w=1024)
+- ![](images/wordpress_export/2019/10/table.jpeg?w=1024)
     
-- ![](https://datasciencecastnethome.files.wordpress.com/2019/10/map.jpeg?w=1024)
+- ![](images/wordpress_export/2019/10/map.jpeg?w=1024)
     
 
 Using sophisticated mapping software (see above), I planned 7 routes that would cover most of the road segments. For each route, I chose a start and end zone in the Uber Movement interface (see table above) and then I downloaded the data. To do it manually would have taken ages, and I'm lazy, so I automated the process using pyautogui, but you could also just resign yourself to a few hours of clicking away and get everything you need. More routes here would have meant better data, but this seemed enough to give me a rough traffic proxy.
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-29-11-34-13.png?w=1024)
+![](images/wordpress_export/2019/10/screenshot-from-2019-10-29-11-34-13.png?w=1024)
 
 Some of the travel times data
 
@@ -32,7 +32,7 @@ I manually tagged each segment with the equivalent Uber Movement trip I would be
 
 ## Does it work?
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/10/screenshot-from-2019-10-29-16-25-32.png?w=409)
+![](images/wordpress_export/2019/10/screenshot-from-2019-10-29-16-25-32.png?w=409)
 
 Score (y axis) vs threshold for predicting a 1. In my case, a threshold of ~0.35 was good.
 

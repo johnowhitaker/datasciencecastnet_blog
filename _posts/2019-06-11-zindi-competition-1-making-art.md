@@ -5,7 +5,7 @@ date: "2019-06-11"
 
 I'm going to try entering some Zindi competitions this week. First up is the 'AI Art' contest. I have many crazy plans, but my nascent tensorflow skills mean everything takes time. For now, let me present my first attempt:
 
-![](https://datasciencecastnethome.files.wordpress.com/2019/06/result1-1.png)
+![](images/wordpress_export/2019/06/result1-1.png)
 
 'Bridge over Rainbow Water' - J Whitaker, 2019
 
@@ -18,15 +18,15 @@ Now for the specifics of this piece:
 
 Some attempts that didn't make the cut:
 
-- ![](https://datasciencecastnethome.files.wordpress.com/2019/06/out4.png)
+- ![](images/wordpress_export/2019/06/out4.png)
     
-- ![](https://datasciencecastnethome.files.wordpress.com/2019/06/out2-1.png)
+- ![](images/wordpress_export/2019/06/out2-1.png)
     
-- ![](https://datasciencecastnethome.files.wordpress.com/2019/06/screenshot-from-2019-06-11-09-29-40-1.png)
+- ![](images/wordpress_export/2019/06/screenshot-from-2019-06-11-09-29-40-1.png)
     
-- ![](https://datasciencecastnethome.files.wordpress.com/2019/06/screenshot-from-2019-06-11-09-52-57.png)
+- ![](images/wordpress_export/2019/06/screenshot-from-2019-06-11-09-52-57.png)
     
-- ![](https://datasciencecastnethome.files.wordpress.com/2019/06/screenshot-from-2019-06-11-09-52-49.png)
+- ![](images/wordpress_export/2019/06/screenshot-from-2019-06-11-09-52-49.png)
     
 
 As you might suspect, I've been playing with introducing distortion into the process. Just as we perceive a work in progress through the lens of our eyes (from different angles, with non-uniform lighting), I'd like the algorithm to only see a distorted view of it's output. This could be a blur or transform, but ultimately I'd like to try using a webcam and some wavy glass to create a means of perception for my co-artist.

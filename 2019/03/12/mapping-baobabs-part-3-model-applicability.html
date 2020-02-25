@@ -109,7 +109,7 @@
 
 <p>The key concept here is distance from the sample space. We sampled at a limited number of geographic locations, but there is no way these locations completely cover all possible combinations of temperature, rainfall, soil type and altitude. For example, all samples were at altitudes between 300 and 1300m above sea level. We might expect a model to make reasonable predictions for a new point at 500m above sea level. But what about a point at 290m elevation? Or 2000m? Or sea level? Fitting a linear model based purely on altitude, we see the problem clearly:</p>
 
-<p><img src="datasciencecastnet_blog/images/wordpress_export/2019/03/alt_vs_density.png" alt="" /></p>
+<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/03/alt_vs_density.png" alt="" /></p>
 
 <p>Line of best fit: Elevation vs Density</p>
 
@@ -117,7 +117,7 @@
 
 <p>So how do we deal with this? A simple approach might be to define upper and lower bounds for all input variables and to avoid making predictions outside of the range covered by our training data. We can do this in GEE using masking:</p>
 
-<p><img src="datasciencecastnet_blog/images/wordpress_export/2019/03/screenshot-from-2019-03-12-16-45-34.png" alt="" /></p>
+<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/03/screenshot-from-2019-03-12-16-45-34.png" alt="" /></p>
 
 <p>Black areas fall within 80% bounds for all variables</p>
 
@@ -151,7 +151,7 @@
   </tbody>
 </table>
 
-<p><img src="datasciencecastnet_blog/images/wordpress_export/2019/03/wdv.png" alt="" /></p>
+<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/03/wdv.png" alt="" /></p>
 
 <p>A point outside our sampled region</p>
 
@@ -167,7 +167,7 @@
   </tbody>
 </table>
 
-<p><img src="datasciencecastnet_blog/images/wordpress_export/2019/03/screenshot-from-2019-03-12-16-47-26.png" alt="" /></p>
+<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/03/screenshot-from-2019-03-12-16-47-26.png" alt="" /></p>
 
 <table>
   <tbody>

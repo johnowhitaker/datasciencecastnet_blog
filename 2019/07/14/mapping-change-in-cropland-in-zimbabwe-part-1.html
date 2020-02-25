@@ -2,25 +2,25 @@
 <html lang="en"><head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/datasciencecastnet_blog/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
 <title>Mapping Change in Cropland in Zimbabwe (Part 1) | datasciencecastnet</title>
 <meta name="generator" content="Jekyll v3.8.5" />
 <meta property="og:title" content="Mapping Change in Cropland in Zimbabwe (Part 1)" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="I’m going to be working on a project that will ultimately require manually outlining tobacco fields in Zimbabwe. To help locate potential fields, it would be nice to have a model that can predict whether a giver area contains cropland. To train such a model required labeled fields - a chicken and egg scenario that should have me resigned to hours of manual work. But I much prefer not to do things if I can possibly get a computer to do it, and this post (along with one or more sequels) will document the ways I’ve made my life easier, and the lessons learnt in the process." />
 <meta property="og:description" content="I’m going to be working on a project that will ultimately require manually outlining tobacco fields in Zimbabwe. To help locate potential fields, it would be nice to have a model that can predict whether a giver area contains cropland. To train such a model required labeled fields - a chicken and egg scenario that should have me resigned to hours of manual work. But I much prefer not to do things if I can possibly get a computer to do it, and this post (along with one or more sequels) will document the ways I’ve made my life easier, and the lessons learnt in the process." />
-<link rel="canonical" href="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/07/14/mapping-change-in-cropland-in-zimbabwe-part-1.html" />
-<meta property="og:url" content="https://johnowhitaker.github.io/datasciencecastnet_blog/2019/07/14/mapping-change-in-cropland-in-zimbabwe-part-1.html" />
+<link rel="canonical" href="https://datasciencecastnet.com/2019/07/14/mapping-change-in-cropland-in-zimbabwe-part-1.html" />
+<meta property="og:url" content="https://datasciencecastnet.com/2019/07/14/mapping-change-in-cropland-in-zimbabwe-part-1.html" />
 <meta property="og:site_name" content="datasciencecastnet" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2019-07-14T00:00:00-05:00" />
 <script type="application/ld+json">
-{"description":"I’m going to be working on a project that will ultimately require manually outlining tobacco fields in Zimbabwe. To help locate potential fields, it would be nice to have a model that can predict whether a giver area contains cropland. To train such a model required labeled fields - a chicken and egg scenario that should have me resigned to hours of manual work. But I much prefer not to do things if I can possibly get a computer to do it, and this post (along with one or more sequels) will document the ways I’ve made my life easier, and the lessons learnt in the process.","@type":"BlogPosting","headline":"Mapping Change in Cropland in Zimbabwe (Part 1)","dateModified":"2019-07-14T00:00:00-05:00","datePublished":"2019-07-14T00:00:00-05:00","url":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/07/14/mapping-change-in-cropland-in-zimbabwe-part-1.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://johnowhitaker.github.io/datasciencecastnet_blog/2019/07/14/mapping-change-in-cropland-in-zimbabwe-part-1.html"},"@context":"https://schema.org"}</script>
+{"description":"I’m going to be working on a project that will ultimately require manually outlining tobacco fields in Zimbabwe. To help locate potential fields, it would be nice to have a model that can predict whether a giver area contains cropland. To train such a model required labeled fields - a chicken and egg scenario that should have me resigned to hours of manual work. But I much prefer not to do things if I can possibly get a computer to do it, and this post (along with one or more sequels) will document the ways I’ve made my life easier, and the lessons learnt in the process.","@type":"BlogPosting","headline":"Mapping Change in Cropland in Zimbabwe (Part 1)","dateModified":"2019-07-14T00:00:00-05:00","datePublished":"2019-07-14T00:00:00-05:00","url":"https://datasciencecastnet.com/2019/07/14/mapping-change-in-cropland-in-zimbabwe-part-1.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://datasciencecastnet.com/2019/07/14/mapping-change-in-cropland-in-zimbabwe-part-1.html"},"@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
   <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
-  <link rel="stylesheet" href="/datasciencecastnet_blog/assets/main.css">
-  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://johnowhitaker.github.io/datasciencecastnet_blog/feed.xml" title="datasciencecastnet" />
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://datasciencecastnet.com/feed.xml" title="datasciencecastnet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
     <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
@@ -72,7 +72,7 @@
   </script>
 </head><body><header class="site-header" role="banner">
 
-  <div class="wrapper"><a class="site-title" rel="author" href="/datasciencecastnet_blog/">datasciencecastnet</a><nav class="site-nav">
+  <div class="wrapper"><a class="site-title" rel="author" href="/">datasciencecastnet</a><nav class="site-nav">
         <input type="checkbox" id="nav-trigger" class="nav-trigger" />
         <label for="nav-trigger">
           <span class="menu-icon">
@@ -82,7 +82,7 @@
           </span>
         </label>
 
-        <div class="trigger"><a class="page-link" href="/datasciencecastnet_blog/about/">About Me</a><a class="page-link" href="/datasciencecastnet_blog/search/">Search</a><a class="page-link" href="/datasciencecastnet_blog/categories/">Tags</a></div>
+        <div class="trigger"><a class="page-link" href="/about/">About Me</a><a class="page-link" href="/search/">Search</a><a class="page-link" href="/categories/">Tags</a></div>
       </nav></div>
 </header>
 <main class="page-content" aria-label="Content">
@@ -111,13 +111,13 @@
 
 <p>I recently encountered a project that already did a lot of the hard work tagging fields all over Africa. Their results (featured in today’s <a href="https://datasciencecastnet.home.blog/2019/07/13/data-glimpse-cropland-and-settlement-maps-from-qed-ai/">Data Glimpse post</a>) look great, but the training data used isn’t published. Now, I could just use their published map, but I’m also interested in change over time, while their map is based solely on 2015 data. What if we train a new model on the output of their model? This isn’t generally a great idea (since you’re compounding errors) but it might be good enough for our purposes.</p>
 
-<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/07/pred_vs_crop.jpeg" alt="" /></p>
+<p><img src="/images/wordpress_export/2019/07/pred_vs_crop.jpeg" alt="" /></p>
 
 <p>Satellite image (left) and my predicted cropland (right, in red)</p>
 
 <p>In Google Earth Engine (script available here), I created a composite image from Landsat 8 images taken in 2015, including NDVI, band values from a greenest-pixel composite and band values from late in the year (planting season for most crops). This is to be the input to out model. I then sampled 2500 points, recording the inputs (the bands of the composite image) and the desired output (the cropland probability made available by the qed.ai team). This data was used to train a random forest model (framing the task as a classification problem) and the predictions compared to the predictions from the QED data. The result: 99% accuracy.</p>
 
-<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/07/screenshot-from-2019-07-13-08-35-11-1.png" alt="" /></p>
+<p><img src="/images/wordpress_export/2019/07/screenshot-from-2019-07-13-08-35-11-1.png" alt="" /></p>
 
 <p>Confusion matrix and accuracy</p>
 
@@ -127,7 +127,7 @@
 
 <p>The model takes landsat 8 image data as it’s inputs. It was trained on 2015 data, but there is no reason why we can’t make predictions based on other years, and see where these predictions differ from the 2015 ones. Subtracting two years’ predictions gives a difference image, shown below for 2015 - 2018. Red indicated areas where cropland is predicted in 2018 and not 2015 (new cropland). Black and green are areas where the model predicts no change or less cropland in 2018.</p>
 
-<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/07/screenshot-from-2019-07-13-08-21-44-2.png?w=1024" alt="" /></p>
+<p><img src="/images/wordpress_export/2019/07/screenshot-from-2019-07-13-08-21-44-2.png?w=1024" alt="" /></p>
 
 <p>Difference Image (2018). Potential new cropland shown in red.</p>
 
@@ -137,11 +137,11 @@
 
 <p>This sets the scene for my next steps: manually outlining fields, differentiating between different crop types, training an improved model, adding more inputs… Stay tuned for part 2.</p>
 
-  </div><a class="u-url" href="/datasciencecastnet_blog/2019/07/14/mapping-change-in-cropland-in-zimbabwe-part-1.html" hidden></a>
+  </div><a class="u-url" href="/2019/07/14/mapping-change-in-cropland-in-zimbabwe-part-1.html" hidden></a>
 </article>
       </div>
     </main><footer class="site-footer h-card">
-  <data class="u-url" href="/datasciencecastnet_blog/"></data>
+  <data class="u-url" href="/"></data>
 
   <div class="wrapper">
 
@@ -154,7 +154,7 @@
       </div>
 
       <div class="footer-col footer-col-2"><ul class="social-media-list">
-  <li><a href="https://github.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#github"></use></svg> <span class="username">johnowhitaker</span></a></li><li><a href="https://www.twitter.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/datasciencecastnet_blog/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">johnowhitaker</span></a></li></ul>
+  <li><a href="https://github.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">johnowhitaker</span></a></li><li><a href="https://www.twitter.com/johnowhitaker"><svg class="social svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">johnowhitaker</span></a></li></ul>
 </div>
 
       <div class="footer-col footer-col-3">

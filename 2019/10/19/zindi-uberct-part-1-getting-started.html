@@ -121,25 +121,25 @@
 
 <h2 id="the-data">The data</h2>
 
-<p><img src="../images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-26-48.png?w=1024" alt="" /></p>
+<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-26-48.png?w=1024" alt="" /></p>
 
 <p>The different road segments</p>
 
 <p>The roads along which events have been recorded have been divined into segments, each roughly 500m long (lengths vary). The events themselves each have a latitude and longitude associated with them, and have been tagged with the segment id of the nearest road segment. Due to map inaccuracies, the events don’t always line up exactly with the road network.</p>
 
-<p><img src="../images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-26-21.png?w=1024" alt="" /></p>
+<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-26-21.png?w=1024" alt="" /></p>
 
 <p>Events (blue) not quite aligned with road segments.</p>
 
 <p>The main input file is ‘train.csv’, which contains the individual events. The submission requires grouping these into segments and making hourly predictions, so some re-shaping is required (see <a href="https://colab.research.google.com/drive/1HjJhghj2b5JJnOFNTcojLfAicDf5QWWK">the notebook</a>).</p>
 
-<p><img src="../images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-26-27.png?w=1024" alt="" /></p>
+<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-26-27.png?w=1024" alt="" /></p>
 
 <p>train.csv - the base on which we’ll build</p>
 
 <p>Extra data includes a shapefile of the road segments themselves. This shows the segments but also includes extra info like the umber of lanes, road name etc. There is also Uber Movenet data with travel times between different zones withing the city. In part 3 we’ll look more at this.</p>
 
-<p><img src="../images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-33-44.png?w=1024" alt="" /></p>
+<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-33-44.png?w=1024" alt="" /></p>
 
 <p>Uber movement zones (red) with those along the road segments selected (green).</p>
 
@@ -149,13 +149,13 @@
 
 <p>We’re looking at each segment, for each hour. What kinds of features can we add that could help us create a model? The other data sources contain some useful info (as we’ll see in the following posts) but even with just train.csv we can start building up some info to work with. For example, we can derive day of the week, time, month etc from the datetime - all of which likely influence the incident rate.</p>
 
-<p><img src="../images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-46-56.png?w=663" alt="" /></p>
+<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-46-56.png?w=663" alt="" /></p>
 
 <p>Adding some date-related variables</p>
 
 <p>We can also get the rough locations of the segments by looking at the locations of the incidents within them:</p>
 
-<p><img src="../images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-47-08.png?w=852" alt="" /></p>
+<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-47-08.png?w=852" alt="" /></p>
 
 <p>Adding location columns</p>
 
@@ -165,7 +165,7 @@
 
 <p>I went with CatBoost as a starting model. Good performance, reasonable handling of imbalanced data and it saves us having to fiddle with categorical columns. We specify the input and output columns, create a CatBoostClassifier and throw our data at it:</p>
 
-<p><img src="../images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-50-03.png?w=673" alt="" /></p>
+<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/10/screenshot-from-2019-10-19-13-50-03.png?w=673" alt="" /></p>
 
 <p>First model</p>
 
@@ -179,7 +179,7 @@
 
 <p>Another option is to mess about with the class_weights parameter. I followed the advice in the docs, and got roughly the same score as I had with the threshold method.</p>
 
-<p><img src="../images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-03-38.png?w=423" alt="" /></p>
+<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-03-38.png?w=423" alt="" /></p>
 
 <p>Tip from the CatBoost documentation</p>
 
@@ -187,7 +187,7 @@
 
 <p>So, we have a model that predicts probabilities, and a threshold above which we’ll predict a one. All that’s left is to transform our sample submission dataframe the same way we did with train - adding time and location columns. Then we feed it through our model, save and submit!</p>
 
-<p><img src="../images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-05-49.png?w=994" alt="" /></p>
+<p><img src="/datasciencecastnet_blog/images/wordpress_export/2019/10/screenshot-from-2019-10-19-14-05-49.png?w=994" alt="" /></p>
 
 <p>Making predictions</p>
 

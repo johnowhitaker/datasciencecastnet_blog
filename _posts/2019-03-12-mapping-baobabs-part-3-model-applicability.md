@@ -7,7 +7,7 @@ In the previous two posts, we built a Species Distribution Model and used it to 
 
 The key concept here is distance from the sample space. We sampled at a limited number of geographic locations, but there is no way these locations completely cover all possible combinations of temperature, rainfall, soil type and altitude. For example, all samples were at altitudes between 300 and 1300m above sea level. We might expect a model to make reasonable predictions for a new point at 500m above sea level. But what about a point at 290m elevation? Or 2000m? Or sea level? Fitting a linear model based purely on altitude, we see the problem clearly:
 
-![](../images/wordpress_export/2019/03/alt_vs_density.png)
+![]({{ site.baseurl }}/images/wordpress_export/2019/03/alt_vs_density.png)
 
 Line of best fit: Elevation vs Density
 
@@ -15,7 +15,7 @@ Negative tree densities at high altitude? Insanely high densities at sea level? 
 
 So how do we deal with this? A simple approach might be to define upper and lower bounds for all input variables and to avoid making predictions outside of the range covered by our training data. We can do this in GEE using masking:
 
-![](../images/wordpress_export/2019/03/screenshot-from-2019-03-12-16-45-34.png)
+![]({{ site.baseurl }}/images/wordpress_export/2019/03/screenshot-from-2019-03-12-16-45-34.png)
 
 Black areas fall within 80% bounds for all variables
 
@@ -25,13 +25,13 @@ Enter what I call the |Weighted Distance Vector|. We represent each input as a d
 
 Considering only two variables, elevation and temperature, we can represent all our training data as points (blue) on a grid where the X axis represents elevation and the y axis temperature. We'll draw out our limits around the training data using bounds covering 90% of our data. A point within the limits has a |WDV| of 0. Now consider a point outside the limits (red). It's 250m higher than any we've seen - 0.25 times the range of elevations observed. It's 2.5 degrees cooler than any of our sampled locations, which is 0.3 times the upper-lower bounds for temperature. The distance is sqrt(0.25^2 +0.3^2) = 0.39. However, altitude has a large influence on distribution, while temperature does not. Scaling by appropriate weights (see the penultimate paragraph for where these come from) we get |WDV| = sqrt((0.173\*0.25)^2 +(0.008\*0.3)^2) = 0.043. The key point here is that the |WDV| captures the fact that elevation is important. A point at 750m elevation with a mean temp of 30 °C will have a low |WDV| (0.005), while one with a mean temp of 23 °C but an altitude of 1600m will have a high |WDV| (0.02).
 
-![](../images/wordpress_export/2019/03/wdv.png)
+![]({{ site.baseurl }}/images/wordpress_export/2019/03/wdv.png)
 
 A point outside our sampled region
 
 To do this in GEE is fairly simple, since we can map functions over the input images to get the |WDV| at each location. [This script](https://code.earthengine.google.com/c5cabd5c33829e8420694874ba3e35b2) shows it in action. And the result gives us much more information than the mask we made earlier. Red areas have a very small |WDV|, and we expect our model to do well there. White areas are out of scope, and I'd take predictions in the yellow regions with a grain of salt. What isn't included here is geographical distance - extrapolating to different continents, even if conditions match, is not advised.
 
-![](../images/wordpress_export/2019/03/screenshot-from-2019-03-12-16-47-26.png)
+![]({{ site.baseurl }}/images/wordpress_export/2019/03/screenshot-from-2019-03-12-16-47-26.png)
 
 |WDV| over Southern Africa. Red areas are similar to sampled regions, white are not.
 

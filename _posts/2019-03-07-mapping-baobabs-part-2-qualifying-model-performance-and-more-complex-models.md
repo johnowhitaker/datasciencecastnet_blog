@@ -13,7 +13,7 @@ I'll be working in a Jupyter notebook. This gives an interactive environment, pe
 
 I'm using a library called pandas to load the training data (which we made to train the model in GEE) into a data structure called a DataFrame. Think of it as a spreadsheet, with columns representing the input variables (altitude, rainfall etc) and the output variable that we intend to model (in this case, tree density).
 
-![](../images/wordpress_export/2019/03/screenshot-from-2019-03-06-18-06-45.png)
+![]({{ site.baseurl }}/images/wordpress_export/2019/03/screenshot-from-2019-03-06-18-06-45.png)
 
 Loading the data into a pandas DataFrame
 
@@ -21,17 +21,17 @@ Loading the data into a pandas DataFrame
 
 We need ways of gauging model performance so that we can decide how reliable the predictions are or choose between two models. An easy way to do this is to hold back some of the training data and see how well the model performs with it. We train a model with, say, 80% of our data and then make predictions on the remaining 20%. The closer the predictions are to the true values, the better the model has done. Let's see an example:
 
-![](../images/wordpress_export/2019/03/screenshot-from-2019-03-06-18-12-08.png)
+![]({{ site.baseurl }}/images/wordpress_export/2019/03/screenshot-from-2019-03-06-18-12-08.png)
 
 The data has been split into training and test sets. X represents the inputs to the model and y the desired outputs. So here, we train the model with X-train and y\_train and then see how well it does on the unseen test data. But hang on, what does model.score() even do?
 
 The score shown is known as the 'R-Squared Score'. It is a measure of how well the model explains the variance in the output variable. Scores closer to 1 are better. We'll use this going forward, but it isn't very easy to understand (read more [here](http://blog.minitab.com/blog/adventures-in-statistics-2/regression-analysis-how-do-i-interpret-r-squared-and-assess-the-goodness-of-fit)). A quick way to get a more intuitive understanding of how well a model does, I like to plot the models predictions vs the actual figures. An ideal model would predict the outputs 100% correctly, resulting in a straight line (y=x). The closer to this ideal we get, the better our model is. Here we go:
 
-![](../images/wordpress_export/2019/03/screenshot-from-2019-03-06-18-21-00.png)
+![]({{ site.baseurl }}/images/wordpress_export/2019/03/screenshot-from-2019-03-06-18-21-00.png)
 
 Hmm, that's not much like a straight line. But there is some relation - an encouraging sign. Also, the X axis (actual densities) seems to be appearing in increments of 25 - what's up with that? Well, the data is split into very small plots (4ha each). In an area where the baobab density is 50 trees per square km, one plot might have 2 trees (giving a density of 50 trees/km^2), another might have none (density=0) and a third might have 5 (density=125). To smooth things out, we can clump adjacent plots together. This will give us fewer, larger plots, each with a better density figure. The code for this is in the accompanying notebook. Repeating the scoring process with this new input data, we get the following:
 
-![](../images/wordpress_export/2019/03/screenshot-from-2019-03-06-18-25-18.png)
+![]({{ site.baseurl }}/images/wordpress_export/2019/03/screenshot-from-2019-03-06-18-25-18.png)
 
 Better, and the score has improved. But still not great - for example, the model predicts a density of -100 trees/km^2 in some places. However, this gives us a starting point.
 
@@ -39,7 +39,7 @@ Using a single test/train split gives an idea of performance, but we can get mor
 
 Final bit in this section: let's clear our heads by getting another measure of performance. Imaging we've driven 80% of the roads, and want to predict how many baobabs we'll see on the final stretch. We'll do it for this model (and all the following models) and compare:
 
-![](../images/wordpress_export/2019/03/screenshot-from-2019-03-07-15-24-39.png)
+![]({{ site.baseurl }}/images/wordpress_export/2019/03/screenshot-from-2019-03-07-15-24-39.png)
 
 Quite the error!
 
@@ -60,11 +60,11 @@ Adding quadratic features (altitude^2 etc) gives a better R^2 score for a random
 
 We could keep on refining the simple models above, adding regularization parameters to help them generalize better, for example. But let's move on and try a new kind of model - a decision tree. This post is already getting long, so I'll leave an [explanation](https://towardsdatascience.com/everything-you-need-to-know-about-decision-trees-8fcd68ecaa71) of decision trees to someone else. Suffice to say that decision tree methods give a series of true/false splits that can be followed to get a prediction for a given set of inputs. For example, a simple (depth=2) tree predicting the baobab density looks like the following:
 
-![](../images/wordpress_export/2019/03/screenshot-from-2019-03-07-14-53-52.png)
+![]({{ site.baseurl }}/images/wordpress_export/2019/03/screenshot-from-2019-03-07-14-53-52.png)
 
 We can set how complex we want the decision tree to be by changing the max\_depth parameter. Too simple, and we don't account for the trends in the data. Too complex, and we 'overfit', reducing our model's ability to generalize by fitting noise in our training data. We can make trees of different depth, and see how this affects the score. Observe the following two graphs:
 
-![](../images/wordpress_export/2019/03/max_depth_score.png)
+![]({{ site.baseurl }}/images/wordpress_export/2019/03/max_depth_score.png)
 
 Model score with varying max\_depth parameter
 
@@ -72,7 +72,7 @@ More complex models do better but are worse at generalizing. Since we don't see 
 
 Comparing the prediction for the last 20% of the data (as we did with the first linear model), we see that this gives a much closer estimate:
 
-![](../images/wordpress_export/2019/03/screenshot-from-2019-03-07-15-24-47.png)
+![]({{ site.baseurl }}/images/wordpress_export/2019/03/screenshot-from-2019-03-07-15-24-47.png)
 
 Prediction of the total within 15%.
 
@@ -80,7 +80,7 @@ Prediction of the total within 15%.
 
 Random forests are a great example of the value of ensemble modelling. By creating a set of different decision trees, each of which does a mediocre job of making predictions, and then averaging the predictions to weed out extreme errors, they arrive at a more probable prediction. There is more to it than that, but let's just try a couple out and see how they do:
 
-![](../images/wordpress_export/2019/03/screenshot-from-2019-03-07-15-13-13.png)
+![]({{ site.baseurl }}/images/wordpress_export/2019/03/screenshot-from-2019-03-07-15-13-13.png)
 
 ## Results
 
@@ -90,7 +90,7 @@ Our best model was used Random Forest Regression (which could be further improve
 
 I wrote a function to export a tree from scikit-learn into GEE's format. Code here <add link> and example usage in GEE here <add link>.
 
-![](../images/wordpress_export/2019/03/screenshot-from-2019-03-07-16-10-31.png)
+![]({{ site.baseurl }}/images/wordpress_export/2019/03/screenshot-from-2019-03-07-16-10-31.png)
 
 The finished map doesn't look as good as the smooth output of the linear model, but the predictions are more accurate.
 
